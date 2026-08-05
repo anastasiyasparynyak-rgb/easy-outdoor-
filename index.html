@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wend — Vancouver outings, made easy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2a2632;--ink-soft:#5c5566;--hint:#8b8496;
+    --bg:#efedf2;--panel:#ffffff;--line:#e2dfe8;
+    --accent:#e0605e;--accent-deep:#c74644;--accent-tint:#f8dddc;
+    --amber:#9a6a1a;--amber-tint:#f6e9d2;--teal:#1f6e64;--teal-tint:#d5eae6;--blue:#3a6ea5;--blue-tint:#dde8f4;
+    --radius:14px;--shadow:0 1px 2px rgba(42,38,50,.05),0 10px 26px rgba(42,38,50,.06);
+    --font-ui:'Inter',system-ui,sans-serif;--font-display:'Fraunces',Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --ink:#ece7f0;--ink-soft:#b3aac0;--hint:#867d94;--bg:#151220;--panel:#1e1a2a;--line:#2e2940;
+    --accent:#f0827f;--accent-deep:#f7a9a6;--accent-tint:#2f1e28;--amber:#e0ad5e;--amber-tint:#2c2314;
+    --teal:#63bcae;--teal-tint:#152c28;--blue:#8fb4dd;--blue-tint:#16233a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.4);}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui);line-height:1.55;-webkit-font-smoothing:antialiased;padding:0 18px}
+  .wrap{max-width:960px;margin:0 auto}
+  header.top{padding:34px 0 18px}
+  .brand{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
+  .brand h1{font-family:var(--font-display);font-weight:600;font-size:31px;letter-spacing:-.01em;margin:0}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;margin-bottom:3px}
+  .brand p{margin:0;color:var(--ink-soft);font-size:15px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .controls{padding:18px;margin-top:4px}
+  form.nl{display:flex;gap:8px}
+  .nl-field{flex:1;display:flex;align-items:center;gap:9px;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:0 13px}
+  .nl-field:focus-within{border-color:var(--accent)}
+  .nl-field svg{color:var(--accent);flex:none}
+  .nl-field input{flex:1;border:0;background:transparent;color:var(--ink);font-family:inherit;font-size:15px;padding:12px 0;outline:none}
+  .nl-field input::placeholder{color:var(--hint)}
+  .btn{font-family:inherit;font-size:15px;font-weight:500;border-radius:11px;border:1px solid transparent;cursor:pointer;padding:11px 18px;display:inline-flex;align-items:center;gap:7px}
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn-primary:hover{background:var(--accent-deep)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn:focus-visible,select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .adjust{display:flex;gap:13px;flex-wrap:wrap;align-items:end;margin-top:16px}
+  .adjust .lead{font-size:13px;color:var(--hint);align-self:center}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:500}
+  select{font-family:inherit;font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 30px 9px 11px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238b8496' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+  .wxbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;margin-top:14px}
+  .wxnow{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--ink-soft)}
+  .wxday{display:flex;align-items:center;gap:6px}
+  .wxday svg{color:var(--blue)}
+  .wxday b{color:var(--ink);font-weight:600}
+  .wxnote{font-size:12.5px;color:var(--accent-deep);font-weight:500}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{font-family:inherit;font-size:12.5px;border:0;background:transparent;color:var(--ink-soft);padding:7px 12px;cursor:pointer}
+  .seg button.on{background:var(--accent);color:#fff}
+  .seg-label{font-size:12px;color:var(--hint);margin-right:8px}
+  .results{margin:24px 0 6px}
+  .results-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .results-head h2{font-family:var(--font-display);font-weight:500;font-size:23px;margin:0}
+  .rh-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .summary{font-size:13.5px;color:var(--ink-soft)}
+  .hidedone{font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;cursor:pointer}
+  .hidedone input{accent-color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;position:relative}
+  .card.top{border-color:var(--accent);border-width:1.5px}
+  .card.is-done{opacity:.62}
+  .cap{position:relative;height:98px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .cap .glyph{position:relative;z-index:1}
+  .cap svg.topo{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+  .pill{position:absolute;z-index:2;top:10px;left:10px;background:var(--panel);color:var(--accent);font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+  .donebadge{position:absolute;z-index:2;top:10px;right:10px;background:var(--teal);color:#fff;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+  .body{padding:13px 15px 15px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .title-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .title-row .name{font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+  .title-row .type{font-size:12px;color:var(--hint);white-space:nowrap}
+  .why{font-size:13.5px;color:var(--ink-soft);margin:0}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:11.5px;font-weight:500;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
+  .tag.begin{background:var(--teal-tint);color:var(--teal)}
+  .tag.dog{background:var(--accent-tint);color:var(--accent-deep)}
+  .tag.rain{background:var(--blue-tint);color:var(--blue)}
+  .tag.dry{background:var(--amber-tint);color:var(--amber)}
+  .warn{display:flex;align-items:flex-start;gap:7px;background:var(--amber-tint);border-radius:9px;padding:8px 10px;font-size:12.5px;color:var(--amber)}
+  .warn svg{flex:none;margin-top:1px}
+  .facts{display:flex;flex-wrap:wrap;gap:12px;padding-top:2px}
+  .fact{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft)}
+  .fact svg{color:var(--accent);flex:none}
+  .detail{display:none;border-top:1px solid var(--line);margin-top:4px;padding-top:10px;font-size:12.5px;color:var(--ink-soft)}
+  .detail.open{display:block}
+  .detail div{display:flex;gap:6px;padding:2px 0}
+  .detail span.k{color:var(--hint);min-width:82px}
+  .rowbtns{display:flex;gap:8px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .minibtn{font-family:inherit;font-size:12.5px;font-weight:500;border:1px solid var(--line);background:transparent;color:var(--ink-soft);border-radius:20px;padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .minibtn:hover{border-color:var(--accent);color:var(--accent)}
+  .minibtn.is-done{background:var(--teal-tint);border-color:transparent;color:var(--teal)}
+  .more-row{display:flex;justify-content:center;margin:22px 0 6px}
+  .storenote{text-align:center;font-size:12px;color:var(--hint);margin:8px 0 0}
+  .funfact{font-size:12px;color:var(--hint);font-style:italic;margin:2px 0 0;display:flex;gap:6px;align-items:flex-start;line-height:1.4}
+  .funfact svg{color:var(--accent);flex:none;margin-top:2px}
+  .filters{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .filters .lead{font-size:13px;color:var(--hint);align-self:center}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip-t{font-family:inherit;font-size:12.5px;padding:6px 11px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer}
+  .chip-t.on{background:var(--accent-tint);border-color:transparent;color:var(--accent-deep);font-weight:500}
+  .empty{padding:28px 18px;text-align:center;color:var(--ink-soft);font-size:15px}
+  footer{padding:24px 0 40px;color:var(--hint);font-size:12.5px;border-top:1px solid var(--line);margin-top:26px}
+  footer b{color:var(--ink-soft);font-weight:600}
+  @media (max-width:560px){.brand h1{font-size:27px}header.top{padding:26px 0 14px}form.nl{flex-direction:column}.rh-right{align-items:flex-start}}
+  @media (prefers-reduced-motion:no-preference){.card{transition:opacity .15s,transform .15s,border-color .15s}.card:hover{transform:translateY(-2px)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><div class="brand"><span class="dot"></span><h1>Wend</h1><p>Vancouver outings, made easy</p></div></header>
+
+  <section class="panel controls" aria-label="Find an outing">
+    <form class="nl" id="nlForm">
+      <div class="nl-field">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"/></svg>
+        <input id="nlInput" type="text" placeholder="chill saturday, no car, bringing the dog" aria-label="Describe your weekend">
+      </div>
+      <button class="btn btn-primary" type="submit">Find spots</button>
+    </form>
+    <div class="adjust">
+      <span class="lead">or adjust</span>
+      <div class="field"><label for="area">Your area</label><select id="area"></select></div>
+      <div class="field"><label for="time">Time</label><select id="time"></select></div>
+      <div class="field"><label for="transport">Getting there</label><select id="transport"></select></div>
+      <div class="field"><label for="energy">Energy</label><select id="energy"></select></div>
+      <div class="field"><label for="dog">Dog?</label><select id="dog"></select></div>
+    </div>
+    <div class="filters">
+      <span class="lead">filter</span>
+      <div class="chips" id="typeChips"></div>
+      <div class="field"><label for="dist">Within</label><select id="dist"></select></div>
+      <div class="field"><label for="count">Show</label><select id="count"></select></div>
+    </div>
+  </section>
+
+  <div class="panel wxbar" id="wxbar"></div>
+
+  <section class="results" aria-live="polite">
+    <div class="results-head">
+      <h2 id="resTitle">Three spots for you</h2>
+      <div class="rh-right">
+        <span class="summary" id="resSummary"></span>
+        <label class="hidedone"><input type="checkbox" id="hideDone"> Hide spots I've done</label>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="more-row" id="moreRow"></div>
+    <p class="storenote" id="storeNote"></p>
+  </section>
+
+  <footer><b>Prototype.</b> Outing details (difficulty, transit, seasonal, dog, parking) are researched from public sources but approximate &mdash; parking, hours and leash rules vary, so check before you go. Weather is live from Open-Meteo. Your "done" list is saved only in this browser, on this device &mdash; no account, not shared. Fun facts are light local trivia. Not affiliated with any listed park or service.</footer>
+</div>
+
+<script>
+const AREAS=["Downtown","Burnaby","Coquitlam","Richmond","North Shore"];
+const COORDS={Downtown:[49.283,-123.118],Burnaby:[49.248,-122.98],Coquitlam:[49.284,-122.793],Richmond:[49.166,-123.133],"North Shore":[49.32,-123.07]};
+const TIME=[{id:"short",label:"A couple of hours",cap:2.5},{id:"half",label:"Half-day",cap:5},{id:"full",label:"Full day",cap:12}];
+const ENERGY=[{id:"easy",label:"Easy / relaxed",allows:["easy"]},{id:"mod",label:"A bit of a workout",allows:["easy","moderate"]},{id:"hard",label:"Up for a challenge",allows:["easy","moderate","hard"]}];
+const DIST={any:999,"30":30,"45":45,"60":60};
+const CATS={walk:{t:"#dde2f5",dt:"#232a45",ink:"#47539a",dink:"#aeb8ee"},hike:{t:"#ecddea",dt:"#2d2130",ink:"#7a3b69",dink:"#d7a9cd"},bike:{t:"#d5eae6",dt:"#16302b",ink:"#1f6e64",dink:"#7fcdc0"},chill:{t:"#f6e3d6",dt:"#33261c",ink:"#a55a2e",dink:"#e0a878"}};
+const D=[
+  {name:"Stanley Park Seawall",cat:"bike",type:"Walk or bike",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"just yourself",beginner:true,wx:"any",park:"Paid lots around the park; busy on nice days",cost:"Free (paid parking)",why:"Flat, scenic loop \u2014 bail out whenever you like.",t:{Downtown:12,Burnaby:35,Coquitlam:55,Richmond:40,"North Shore":30}},
+  {name:"Lighthouse Park",cat:"walk",type:"Coastal walk",effort:"easy",dur:2,durLabel:"about 2 hrs",bring:"water, proper shoes",beginner:true,wx:"dry",park:"Free lot \u2014 fills early on sunny days",cost:"Free",warn:"Rocks get slippery when wet \u2014 wear proper shoes.",why:"Old-growth forest and ocean viewpoints, easy to follow.",t:{Downtown:45,Burnaby:55,Coquitlam:75,Richmond:65,"North Shore":30}},
+  {name:"Lynn Canyon Park",cat:"walk",type:"Forest walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"runners, water",beginner:true,wx:"rain",park:"Free lot, busy midday",cost:"Free",why:"Free suspension bridge and creek pools; great in the rain.",t:{Downtown:45,Burnaby:40,Coquitlam:45,Richmond:60,"North Shore":20}},
+  {name:"Quarry Rock, Deep Cove",cat:"hike",type:"Hike",effort:"moderate",dur:2,durLabel:"about 2 hrs",bring:"water, snacks",beginner:false,wx:"dry",park:"Very limited in Deep Cove \u2014 transit is better",cost:"Free",warn:"Lots of stairs \u2014 it'll get your heart rate up.",why:"Rewarding lookout over Deep Cove and the inlet.",t:{Downtown:55,Burnaby:45,Coquitlam:50,Richmond:70,"North Shore":30}},
+  {name:"Grouse Grind",cat:"hike",type:"Hike",effort:"hard",dur:2,durLabel:"1.5\u20132 hrs up",bring:"water, real shoes",beginner:false,wx:"dry",park:"Paid lot at the base; fills fast",cost:"Free climb \u00b7 gondola down ~$25",warn:"Very steep, non-stop climb \u2014 not a beginner trail.",why:"The city's famous stair-workout, with a gondola down.",t:{Downtown:40,Burnaby:45,Coquitlam:50,Richmond:60,"North Shore":20}},
+  {name:"Burnaby Mountain (SFU)",cat:"walk",type:"Viewpoint walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"water, layers",beginner:true,wx:"any",park:"Free lots up top",cost:"Free",why:"Easy trails, rose gardens and big views up top.",t:{Downtown:45,Burnaby:20,Coquitlam:30,Richmond:55,"North Shore":55}},
+  {name:"Pacific Spirit Park (UBC)",cat:"walk",type:"Forest trails",effort:"easy",dur:2,durLabel:"1\u20133 hrs",bring:"runners",beginner:true,wx:"rain",park:"Street + small trailhead lots",cost:"Free",why:"Endless soft forest trails \u2014 pick any length.",t:{Downtown:35,Burnaby:45,Coquitlam:65,Richmond:35,"North Shore":50}},
+  {name:"Central Valley Greenway",cat:"bike",type:"Bike route",effort:"easy",dur:2.5,durLabel:"2\u20133 hrs",bring:"a bike, water",beginner:true,wx:"any",park:"No lot \u2014 hop on from any SkyTrain stop",cost:"Free",why:"Flat, separated bike path; ride a stretch and SkyTrain back.",t:{Downtown:15,Burnaby:12,Coquitlam:35,Richmond:45,"North Shore":50}},
+  {name:"Deer Lake, Burnaby",cat:"walk",type:"Lakeside walk",effort:"easy",dur:1,durLabel:"about 1 hr",bring:"just yourself",beginner:true,wx:"any",park:"Free lots, usually easy",cost:"Free",why:"Quiet, pretty and genuinely low effort.",t:{Downtown:35,Burnaby:10,Coquitlam:30,Richmond:40,"North Shore":45}},
+  {name:"Jericho & Spanish Banks",cat:"chill",type:"Beach & chill",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a blanket, snacks",beginner:true,wx:"dry",park:"Big lots; fill up on sunny days",cost:"Free (paid parking in summer)",why:"Sit, stroll and watch the sunset over the water.",t:{Downtown:25,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":40}},
+  {name:"Steveston Village & dyke",cat:"walk",type:"Village & walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"cash for snacks",beginner:true,wx:"any",park:"Paid village lots, busy weekends",cost:"Free (paid parking)",why:"Flat waterfront walk with food at the end.",t:{Downtown:45,Burnaby:40,Coquitlam:55,Richmond:15,"North Shore":65}},
+  {name:"Capilano River Park",cat:"walk",type:"Forest walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"runners, water",beginner:true,wx:"rain",park:"Free lot at the hatchery",cost:"Free",why:"Free river-canyon trails near the salmon hatchery.",t:{Downtown:35,Burnaby:40,Coquitlam:50,Richmond:55,"North Shore":15}},
+  {name:"Barnet Marine Park",cat:"chill",type:"Waterfront chill",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a blanket",beginner:true,wx:"any",park:"Free lot, small",cost:"Free",why:"Low-key waterfront spot that's rarely packed.",t:{Downtown:40,Burnaby:20,Coquitlam:25,Richmond:55,"North Shore":45}},
+  {name:"Coquitlam Crunch",cat:"hike",type:"Stair workout",effort:"hard",dur:1.5,durLabel:"1\u20131.5 hrs",bring:"water, good shoes",beginner:false,wx:"any",park:"Small lots / street at the access points",cost:"Free",warn:"Steep, relentless stairs and no real views.",why:"A no-views stair grind if you just want the workout.",t:{Downtown:50,Burnaby:35,Coquitlam:15,Richmond:60,"North Shore":55}},
+  {name:"Buntzen Lake",cat:"hike",type:"Lake & trails",effort:"moderate",dur:3,durLabel:"2\u20134 hrs",bring:"water, snacks, swimsuit",beginner:false,wx:"dry",park:"Free gated lot \u2014 closes when full on hot days",cost:"Free",warn:"The seasonal bus (179) runs summer weekends only \u2014 check first.",why:"Swim, picnic and easy lakeside loops.",t:{Downtown:70,Burnaby:45,Coquitlam:35,Richmond:80,"North Shore":75}},
+  {name:"Jug Island Beach, Belcarra",cat:"walk",type:"Forest & beach",effort:"moderate",dur:2.5,durLabel:"2\u20133 hrs",bring:"water, snacks",beginner:false,wx:"dry",park:"Belcarra lot fills fast on sunny weekends",cost:"Free",warn:"The Belcarra bus (182) is seasonal, mostly summer weekends.",why:"Forest walk out to a quiet beach with island views.",t:{Downtown:65,Burnaby:45,Coquitlam:35,Richmond:80,"North Shore":70}},
+  {name:"Dog Mountain, Mt Seymour",cat:"hike",type:"Mountain viewpoint",effort:"easy",dur:2,durLabel:"about 2 hrs",bring:"proper shoes, water",beginner:false,carOnly:true,wx:"dry",park:"Paid lot at Mt Seymour (car needed)",cost:"Free trail \u00b7 paid parking",warn:"Slippery roots, and you'll need a car \u2014 no summer transit.",why:"Short trail to a huge Vancouver viewpoint.",t:{Downtown:40,Burnaby:45,Coquitlam:50,Richmond:60,"North Shore":25}},
+  {name:"Iona Beach, Richmond",cat:"chill",type:"Beach & jetty",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a jacket, water",beginner:true,carOnly:true,wx:"dry",park:"Free lot",cost:"Free",warn:"Little transit out here \u2014 easiest with a car.",why:"Long, quiet jetty walk right out into the ocean.",t:{Downtown:35,Burnaby:40,Coquitlam:55,Richmond:20,"North Shore":50}},
+  {name:"Gastown",cat:"walk",type:"City stroll",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"cash for coffee & eats",beginner:true,wx:"any",park:"Paid street & lots; transit is easiest",cost:"Free to wander",why:"Cobblestone streets, caf\u00e9s, patios and shops \u2014 easy to graze and people-watch.",t:{Downtown:6,Burnaby:30,Coquitlam:50,Richmond:35,"North Shore":30}},
+  {name:"Yaletown",cat:"walk",type:"Dining & patios",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a dinner reservation",beginner:true,wx:"any",park:"Paid street/lots; Canada Line nearby",cost:"Free to wander",why:"Brick warehouses turned restaurants, patios and shops by the water.",t:{Downtown:8,Burnaby:28,Coquitlam:48,Richmond:28,"North Shore":35}},
+  {name:"Kitsilano Beach & West 4th",cat:"chill",type:"Beach & eats",effort:"easy",dur:2,durLabel:"1\u20132 hrs",bring:"a towel, cash for brunch",beginner:true,wx:"dry",park:"Beach lots (paid in summer) + street",cost:"Free (paid parking)",why:"Sandy beach and sunset volleyball, then brunch and shops on West 4th.",t:{Downtown:15,Burnaby:35,Coquitlam:55,Richmond:30,"North Shore":35}},
+  {name:"Coal Harbour Seawall",cat:"walk",type:"Harbour stroll",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a coffee",beginner:true,wx:"any",park:"Paid lots; transit easiest",cost:"Free (paid parking)",why:"Flat harbour-front stroll past marinas and floatplanes.",t:{Downtown:5,Burnaby:30,Coquitlam:50,Richmond:35,"North Shore":25}},
+  {name:"English Bay & Second Beach",cat:"chill",type:"Beach & seawall",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a blanket",beginner:true,wx:"dry",park:"Paid street/lots",cost:"Free (paid parking)",why:"Beach, seawall and sunsets from the West End to Second Beach.",t:{Downtown:8,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":30}},
+  {name:"Chinatown",cat:"walk",type:"Historic & food",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"cash for dumplings",beginner:true,wx:"any",park:"Paid street/lots",cost:"Free to wander",why:"Historic streets, dumplings and the Sun Yat-Sen garden.",t:{Downtown:7,Burnaby:28,Coquitlam:48,Richmond:35,"North Shore":35}},
+  {name:"Granville Island",cat:"walk",type:"Market & arts",effort:"easy",dur:2,durLabel:"1\u20133 hrs",bring:"an appetite",beginner:true,wx:"any",park:"Busy paid lots; transit/ferry easiest",cost:"Free to wander",why:"Public market, food stalls, artisan shops and buskers.",t:{Downtown:12,Burnaby:30,Coquitlam:50,Richmond:25,"North Shore":35}}
+];
+const NODOG=new Set(["Grouse Grind"]);
+D.forEach(o=>o.dog=!NODOG.has(o.name));
+const FF={
+"Steveston Village & dyke":"Doubles as 'Storybrooke' in ABC's Once Upon a Time.",
+"Grouse Grind":"Locals call it 'Mother Nature's Stairmaster'.",
+"Quarry Rock, Deep Cove":"Reward the climb with a famous Honey Doughnut in Deep Cove.",
+"Lighthouse Park":"Home to the 1912 Point Atkinson Lighthouse, a national historic site.",
+"Lynn Canyon Park":"Its suspension bridge is free \u2014 unlike the famous Capilano one.",
+"Stanley Park Seawall":"~10 km of uninterrupted waterfront \u2014 one of the world's longest such paths.",
+"Dog Mountain, Mt Seymour":"Yes, it's really called Dog Mountain \u2014 bring the pup.",
+"Gastown":"Home to the landmark Gastown Steam Clock; the district's named after saloon-keeper 'Gassy Jack'.",
+"Yaletown":"A former railway warehouse district \u2014 the old loading docks are now patios.",
+"Kitsilano Beach & West 4th":"Kits Pool is Canada's longest \u2014 137 m of heated saltwater.",
+"Coal Harbour Seawall":"Watch floatplanes take off right from the downtown harbour.",
+"English Bay & Second Beach":"Host of the summer Celebration of Light fireworks.",
+"Chinatown":"Home to the Sam Kee Building \u2014 one of the world's narrowest commercial buildings.",
+"Granville Island":"A former industrial island, now a public market and arts hub."
+};
+D.forEach(o=>{if(FF[o.name])o.funFact=FF[o.name];});
+const WALK={
+"Stanley Park Seawall":["Stanley Park Information Booth Vancouver","Brockton Point Stanley Park Vancouver"],
+"Steveston Village & dyke":["Steveston Village Richmond BC","Steveston Fishermans Wharf Richmond","Garry Point Park Richmond BC"],
+"Gastown":["Gastown Steam Clock Vancouver","Maple Tree Square Gastown Vancouver","Water Street Gastown Vancouver"],
+"Yaletown":["Yaletown-Roundhouse Station Vancouver","David Lam Park Vancouver","Mainland Street Yaletown Vancouver"],
+"Kitsilano Beach & West 4th":["Kitsilano Beach Park Vancouver","Kitsilano Pool Vancouver","West 4th Avenue Kitsilano Vancouver"],
+"Coal Harbour Seawall":["Vancouver Convention Centre","Coal Harbour Seawall Vancouver","Devonian Harbour Park Vancouver"],
+"English Bay & Second Beach":["English Bay Beach Vancouver","Second Beach Stanley Park Vancouver"],
+"Chinatown":["Millennium Gate Chinatown Vancouver","Dr Sun Yat-Sen Classical Chinese Garden Vancouver","Sam Kee Building Vancouver"],
+"Granville Island":["Granville Island Public Market Vancouver","Granville Island Vancouver"]
+};
+D.forEach(o=>{if(WALK[o.name])o.walk=WALK[o.name];});
+
+const state={area:"Downtown",time:"half",transport:"transit",energy:"easy",dog:"any",wxMode:"auto",dist:"any",count:"3",types:new Set(["walk","hike","bike","chill"])};
+let rotate=0,hideDone=false,liveWet=false;
+let weather={loaded:false,ok:false,days:[]};
+const el=id=>document.getElementById(id);
+let done=(function(){try{return new Set(JSON.parse(localStorage.getItem("wend_done")||"[]"));}catch(e){return new Set();}})();
+function saveDone(){try{localStorage.setItem("wend_done",JSON.stringify([...done]));}catch(e){}}
+function isWet(){return state.wxMode==="wet"||(state.wxMode==="auto"&&liveWet);}
+
+function opt(v,l){const o=document.createElement("option");o.value=v;o.textContent=l;return o;}
+function fillSelects(){
+  AREAS.forEach(a=>el("area").appendChild(opt(a,a)));
+  TIME.forEach(t=>el("time").appendChild(opt(t.id,t.label)));
+  [["transit","On transit"],["car","I have a car"]].forEach(x=>el("transport").appendChild(opt(x[0],x[1])));
+  ENERGY.forEach(e=>el("energy").appendChild(opt(e.id,e.label)));
+  [["any","Doesn't matter"],["yes","Bringing my dog"]].forEach(x=>el("dog").appendChild(opt(x[0],x[1])));
+  el("area").value=state.area;el("time").value=state.time;el("transport").value=state.transport;el("energy").value=state.energy;el("dog").value=state.dog;
+  [["any","Anywhere"],["30","\u226430 min"],["45","\u226445 min"],["60","\u22641 hr"]].forEach(x=>el("dist").appendChild(opt(x[0],x[1])));
+  [["3","3 spots"],["6","6 spots"],["999","All"]].forEach(x=>el("count").appendChild(opt(x[0],x[1])));
+  el("dist").value=state.dist;el("count").value=state.count;
+  [["walk","Walks"],["hike","Hikes"],["bike","Bike"],["chill","Beach & chill"]].forEach(x=>{const b=document.createElement("button");b.type="button";b.className="chip-t"+(state.types.has(x[0])?" on":"");b.textContent=x[1];b.onclick=()=>{state.types.has(x[0])?state.types.delete(x[0]):state.types.add(x[0]);b.classList.toggle("on");rotate=0;render();};el("typeChips").appendChild(b);});
+}
+function icon(n){
+  const s='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+  const p={pin:'<path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',bag:'<path d="M6 8h12l-1 12H7zM9 8V6a3 3 0 016 0v2"/>',warn:'<path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',check:'<path d="M20 6L9 17l-5-5"/>',plus:'<path d="M12 5v14M5 12h14"/>',refresh:'<path d="M4 12a8 8 0 0113-6l3 2M20 12a8 8 0 01-13 6l-3-2"/><path d="M20 4v4h-4M4 20v-4h4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',star:'<path d="M12 3l2.6 5.9L21 9.6l-4.5 4.2L17.8 21 12 17.6 6.2 21l1.3-7.2L3 9.6l6.4-.7z"/>',paw:'<circle cx="6" cy="11" r="1.5"/><circle cx="9.5" cy="8" r="1.5"/><circle cx="14.5" cy="8" r="1.5"/><circle cx="18" cy="11" r="1.5"/><path d="M12 12c-2.4 0-4 1.9-4 3.4S9.2 18 12 18s4-1.1 4-2.6S14.4 12 12 12z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/>',cloud:'<path d="M7 17h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 17z"/>',rain:'<path d="M7 14h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 14z"/><path d="M8 18l-1 2M12 18l-1 2M16 18l-1 2"/>',snow:'<path d="M7 14h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 14z"/><path d="M9 18v.01M12 19v.01M15 18v.01"/>',spark:'<path d="M12 3l1.3 4.6L17.5 9l-4.6 1.4L12 15l-1.4-4.6L6.5 9l4.6-1.4z"/>'};
+  return s+(p[n]||"")+"</svg>";
+}
+function catGlyph(cat){
+  const c='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">';
+  const p={hike:'<path d="M3 20h18M6 20l4-11 3 6 2-3 3 8"/><circle cx="14" cy="5" r="1.4"/>',walk:'<circle cx="13" cy="4.5" r="1.6"/><path d="M11 21l1.5-6-2-3 1-4 3 3 2 1M10 12l-1 4"/>',bike:'<circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17l4-7h5l-3 7M9 7h3"/>',chill:'<path d="M3 18h18M5 18c0-3 3-5 7-5s7 2 7 5M12 13V8M9 8h6"/>'};
+  return c+(p[cat]||p.walk)+"</svg>";
+}
+function topo(color){return '<svg class="topo" viewBox="0 0 300 100" preserveAspectRatio="none" fill="none" stroke="'+color+'" stroke-width="1.4"><path d="M-5 28 C 60 8, 110 52, 170 28 S 280 4, 320 30"/><path d="M-5 52 C 70 32, 120 76, 180 52 S 285 30, 320 55"/><path d="M-5 78 C 60 62, 120 100, 190 78 S 285 58, 320 82"/></svg>';}
+function isDark(){return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;}
+
+function wxGlyph(code){if(code<=1)return"sun";if(code<=48)return"cloud";if(code>=71&&code<=77||code>=85&&code<=86)return"snow";return"rain";}
+async function loadWeather(){
+  const co=COORDS[state.area]||COORDS.Downtown;
+  try{
+    const u="https://api.open-meteo.com/v1/forecast?latitude="+co[0]+"&longitude="+co[1]+"&daily=weather_code,temperature_2m_max,precipitation_probability_max&timezone=auto&forecast_days=3";
+    const r=await fetch(u); if(!r.ok)throw 0; const j=await r.json();
+    const d=j.daily; weather.days=[];
+    for(let i=0;i<Math.min(3,d.time.length);i++){
+      weather.days.push({date:d.time[i],code:d.weather_code[i],tmax:Math.round(d.temperature_2m_max[i]),pp:d.precipitation_probability_max[i]});
+    }
+    liveWet=weather.days.slice(0,2).some(x=>x.pp>=55||(x.code>=51&&x.code<=99));
+    weather.ok=true;
+  }catch(e){weather.ok=false;liveWet=false;}
+  weather.loaded=true; renderWx(); render();
+}
+function dayName(iso){const dt=new Date(iso+"T12:00");const t=new Date();const td=t.toISOString().slice(0,10);if(iso===td)return"Today";const n=new Date(t.getTime()+864e5).toISOString().slice(0,10);if(iso===n)return"Tmrw";return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dt.getDay()];}
+function renderWx(){
+  const wet=isWet();
+  let left="";
+  if(weather.ok&&weather.days.length){
+    left='<div class="wxnow">'+weather.days.slice(0,2).map(x=>'<span class="wxday">'+icon(wxGlyph(x.code))+' <b>'+x.tmax+'\u00b0</b> '+dayName(x.date)+(x.pp!=null?' \u00b7 '+x.pp+'%':'')+'</span>').join('')+(wet?'<span class="wxnote">Looks wet \u2014 rain-friendly picks first</span>':'')+'</div>';
+  }else if(weather.loaded){
+    left='<div class="wxnow">'+icon("info")+' Forecast unavailable right now \u2014 plan for a dry or wet day below.'+(wet?' <span class="wxnote">Showing rain-friendly picks</span>':'')+'</div>';
+  }else{
+    left='<div class="wxnow">'+icon("cloud")+' Checking the forecast for '+state.area+'\u2026</div>';
+  }
+  const seg='<div style="display:flex;align-items:center"><span class="seg-label">Planning for</span><div class="seg">'
+    +['auto','dry','wet'].map(m=>'<button data-m="'+m+'"'+(state.wxMode===m?' class="on"':'')+'>'+(m==="auto"?"Auto":m==="dry"?"Dry day":"Wet day")+'</button>').join('')+'</div></div>';
+  el("wxbar").innerHTML=left+seg;
+  el("wxbar").querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{state.wxMode=b.getAttribute("data-m");rotate=0;renderWx();render();});
+}
+
+function matches(){
+  const cap=TIME.find(t=>t.id===state.time).cap;
+  const allows=ENERGY.find(e=>e.id===state.energy).allows;
+  const wet=isWet();
+  let list=D.filter(o=>{
+    if(state.transport==="transit"&&o.carOnly)return false;
+    if(o.dur>cap)return false;
+    if(!allows.includes(o.effort))return false;
+    if(state.dog==="yes"&&!o.dog)return false;
+    if(!state.types.has(o.cat))return false;
+    if((o.t[state.area]||999)>DIST[state.dist])return false;
+    return true;
+  });
+  list.forEach(o=>{
+    let s=0;
+    if(state.energy==="easy"&&o.effort==="easy")s+=3;
+    if(state.energy==="mod"&&o.effort==="moderate")s+=2;
+    if(state.energy==="hard"&&o.effort==="hard")s+=2;
+    if(o.beginner)s+=1;
+    const travel=o.t[state.area]||60; s+=Math.max(0,3-travel/25);
+    if(state.time==="short"&&o.dur<=2)s+=1;
+    if(wet){if(o.wx==="rain")s+=4;if(o.wx==="dry")s-=4;}
+    o._s=s;o._travel=travel;
+  });
+  list.sort((a,b)=>b._s-a._s||a._travel-b._travel);
+  if(hideDone)list=list.filter(o=>!done.has(o.name));
+  return list;
+}
+function detailBlock(o){
+  const transit=o.carOnly?"Car needed \u2014 limited transit":"Transit-accessible (~"+o.t[state.area]+" min from "+state.area+")";
+  const wx=o.wx==="rain"?"Fine in the rain":o.wx==="dry"?"Best on a dry day":"Rain or shine";
+  const pets=o.dog?"Dog-friendly (leashed)":"No dogs allowed";
+  const hours=o.walk?"Streets always open; shops vary":"Public park \u2014 generally dawn to dusk";
+  const A=' target="_blank" rel="noopener" style="color:var(--accent-deep)" href=';
+  const dest=encodeURIComponent(o.name.split(" & ")[0]+", Vancouver BC");
+  const links=['<a'+A+'"https://www.google.com/maps/dir/?api=1&destination='+dest+'&travelmode=transit">Transit & schedule \u2197</a>'];
+  if(o.walk){
+    const pts=o.walk.map(encodeURIComponent);const wp=pts.slice(1).join("%7C");
+    links.push('<a'+A+'"https://www.google.com/maps/dir/?api=1&origin='+pts[0]+'&destination='+pts[0]+'&travelmode=walking'+(wp?'&waypoints='+wp:'')+'">Walk this route \u2197</a>');
+  }else if(o.cat==="hike"||o.cat==="walk"){
+    links.push('<a'+A+'"https://www.alltrails.com/search?q='+encodeURIComponent(o.name.split(",")[0])+'">Trail map (AllTrails) \u2197</a>');
+  }
+  return '<div class="detail" data-detail="'+o.name+'">'
+    +'<div><span class="k">Parking</span><span>'+o.park+'</span></div>'
+    +'<div><span class="k">Cost</span><span>'+o.cost+'</span></div>'
+    +'<div><span class="k">Pets</span><span>'+pets+'</span></div>'
+    +'<div><span class="k">Getting there</span><span>'+transit+'</span></div>'
+    +'<div><span class="k">Weather</span><span>'+wx+'</span></div>'
+    +'<div><span class="k">Hours</span><span>'+hours+'</span></div>'
+    +'<div><span class="k">Guide</span><span>'+links.join(" \u00b7 ")+'</span></div></div>';
+}
+function card(o){
+  const c=CATS[o.cat];const tint=isDark()?c.dt:c.t,glyph=isDark()?c.dink:c.ink;
+  const topoColor=isDark()?"rgba(255,255,255,.10)":"rgba(42,38,50,.09)";
+  const isDone=done.has(o.name);const wet=isWet();
+  return '<article class="card'+(o._top?' top':'')+(isDone?' is-done':'')+'">'
+    +'<div class="cap" style="background:'+tint+';color:'+glyph+'">'+topo(topoColor)
+      +(o._top?'<span class="pill">'+icon("star")+' Top pick</span>':'')
+      +(isDone?'<span class="donebadge">'+icon("check")+' Done</span>':'')
+      +'<span class="glyph">'+catGlyph(o.cat)+'</span></div>'
+    +'<div class="body">'
+      +'<div class="title-row"><span class="name">'+o.name+'</span><span class="type">'+o.type+'</span></div>'
+      +'<p class="why">'+o.why+'</p>'
+      +'<div class="tags">'
+        +(o.beginner&&o.effort==="easy"?'<span class="tag begin">'+icon("check")+' Beginner-friendly</span>':'')
+        +(o.dog?'<span class="tag dog">'+icon("paw")+' Dog-friendly</span>':'')
+        +(wet&&o.wx==="rain"?'<span class="tag rain">'+icon("rain")+' Good in the rain</span>':'')
+        +(wet&&o.wx==="dry"?'<span class="tag dry">'+icon("sun")+' Better on a dry day</span>':'')
+      +'</div>'
+      +(o.warn?'<div class="warn">'+icon("warn")+'<span>'+o.warn+'</span></div>':'')
+      +'<div class="facts">'
+        +'<span class="fact">'+icon("pin")+' ~'+o.t[state.area]+' min from '+state.area+'</span>'
+        +'<span class="fact">'+icon("clock")+' '+o.durLabel+'</span>'
+        +'<span class="fact">'+icon("bag")+' '+o.bring+'</span>'
+      +'</div>'
+      +(o.funFact?'<p class="funfact">'+icon("spark")+'<span>'+o.funFact+'</span></p>':'')
+      +detailBlock(o)
+      +'<div class="rowbtns">'
+        +'<button class="minibtn detailbtn" data-name="'+o.name+'">'+icon("info")+' Details</button>'
+        +'<button class="minibtn donebtn'+(isDone?' is-done':'')+'" data-name="'+o.name+'">'+icon(isDone?"check":"plus")+' '+(isDone?"Done":"Mark as done")+'</button>'
+      +'</div>'
+    +'</div></article>';
+}
+function summaryText(){
+  const t=TIME.find(x=>x.id===state.time).label.toLowerCase();
+  const e=ENERGY.find(x=>x.id===state.energy).label.toLowerCase();
+  const g=state.transport==="car"?"by car":"on transit";
+  return "from "+state.area+" \u00b7 "+g+" \u00b7 "+t+" \u00b7 "+e+(state.dog==="yes"?" \u00b7 with dog":"")+(isWet()?" \u00b7 wet day":"");
+}
+function render(){
+  el("resSummary").textContent=summaryText();
+  const all=matches();const grid=el("grid"),more=el("moreRow");
+  if(all.length===0){
+    grid.innerHTML='<div class="empty">'+(state.types.size===0?"Pick at least one activity type above.":"Nothing matches all of that. Try a wider distance, a car, more time, or more energy"+(state.dog==="yes"?", or leaving the dog this time":"")+".")+'</div>';
+    more.innerHTML="";el("resTitle").textContent="No spots yet";
+  }else{
+    const cnt=state.count==="999"?all.length:parseInt(state.count);
+    const shown=Math.min(cnt,all.length);
+    el("resTitle").textContent=shown+" spot"+(shown===1?"":"s")+" for you";
+    const start=(rotate*shown)%all.length,picks=[];
+    for(let i=0;i<shown;i++)picks.push(all[(start+i)%all.length]);
+    picks.forEach((p,i)=>p._top=(rotate===0&&i===0&&!done.has(p.name)));
+    grid.innerHTML=picks.map(card).join("");
+    more.innerHTML=all.length>shown?'<button class="btn btn-ghost" id="moreBtn">'+icon("refresh")+' Show me others</button>':"";
+    const mb=el("moreBtn");if(mb)mb.onclick=()=>{rotate++;render();};
+    grid.querySelectorAll(".donebtn").forEach(b=>b.onclick=()=>{const nm=b.getAttribute("data-name");done.has(nm)?done.delete(nm):done.add(nm);saveDone();render();});
+    grid.querySelectorAll(".detailbtn").forEach(b=>b.onclick=()=>{const cd=b.closest(".card");const d=cd&&cd.querySelector(".detail");if(d)d.classList.toggle("open");b.classList.toggle("on");});
+  }
+  el("storeNote").textContent="Saved on this device only, no account \u00b7 you've marked "+done.size+" spot"+(done.size===1?"":"s")+" done.";
+}
+function parseText(str){
+  const s=" "+str.toLowerCase()+" ";
+  AREAS.forEach(a=>{if(s.includes(a.toLowerCase()))state.area=a;});
+  if(s.includes("north van")||s.includes("north shore")||s.includes("seymour"))state.area="North Shore";
+  if(/no car|without a car|transit|bus|skytrain|don'?t drive/.test(s))state.transport="transit";
+  if(/\b(car|drive|driving|road trip)\b/.test(s))state.transport="car";
+  if(/challeng|steep|intense|hard workout|tough|summit/.test(s))state.energy="hard";
+  else if(/workout|moderate|bit of a|sweat/.test(s))state.energy="mod";
+  else if(/chill|easy|relax|casual|flat|gentle|nothing too hard|not too hard|low key|lazy/.test(s))state.energy="easy";
+  if(/full day|all day|whole day/.test(s))state.time="full";
+  else if(/couple of hours|quick|short|an hour|hour or/.test(s))state.time="short";
+  else if(/half.?day|afternoon|morning/.test(s))state.time="half";
+  if(/dog|pup|puppy|pooch/.test(s))state.dog="yes";
+  if(/rain|wet|raining|drizzl/.test(s))state.wxMode="wet";
+  if(/sunny|dry|clear/.test(s))state.wxMode="dry";
+  el("area").value=state.area;el("time").value=state.time;el("transport").value=state.transport;el("energy").value=state.energy;el("dog").value=state.dog;
+}
+function wire(){
+  el("area").onchange=e=>{state.area=e.target.value;rotate=0;render();renderWx();loadWeather();};
+  el("time").onchange=e=>{state.time=e.target.value;rotate=0;render();};
+  el("transport").onchange=e=>{state.transport=e.target.value;rotate=0;render();};
+  el("energy").onchange=e=>{state.energy=e.target.value;rotate=0;render();};
+  el("dog").onchange=e=>{state.dog=e.target.value;rotate=0;render();};
+  el("hideDone").onchange=e=>{hideDone=e.target.checked;rotate=0;render();};
+  el("dist").onchange=e=>{state.dist=e.target.value;rotate=0;render();};
+  el("count").onchange=e=>{state.count=e.target.value;rotate=0;render();};
+  el("nlForm").onsubmit=e=>{e.preventDefault();parseText(el("nlInput").value);rotate=0;render();renderWx();loadWeather();};
+  if(window.matchMedia)window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render);
+}
+fillSelects();wire();renderWx();render();loadWeather();
+</script>
+</body>
+</html>
