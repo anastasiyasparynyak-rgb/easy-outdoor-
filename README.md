@@ -10,7 +10,7 @@ This is MVP of the web app that should provide quick overview of walks and hikes
 - **Role:** Product Manager — end to end (research, strategy, design, prototype, deployment). Solo project.
 - **Timeline:** `[e.g., ~4 weeks, part-time]`
 - **What it is:** A responsive web app that gives a casual Vancouverite three good, low-effort outing picks in under a minute — tailored to their neighbourhood, time, energy, transport, weather, and whether they've got a dog.
-- **Live prototype:** `[[your-github-pages-link]](https://anastasiyasparynyak-rgb.github.io/easy-outdoor-/)`
+- **Live prototype:** `[(https://anastasiyasparynyak-rgb.github.io/easy-outdoor-/)]`
 - **Why I built it:** To demonstrate end-to-end product thinking as I transition into product management. I deliberately chose a problem *outside* my day-to-day domain to show the skills travel.
 
 **One-line outcome:** Took a vague idea to a named, live, research-driven prototype — with the discovery, competitive analysis, and iteration to back every decision.
