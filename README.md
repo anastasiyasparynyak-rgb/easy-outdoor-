@@ -4,16 +4,13 @@ This is MVP of the web app that should provide quick overview of walks and hikes
 
 *A weekend-outing recommender for casual Vancouver locals.*
 
-> **How to use this doc:** Anywhere you see `[brackets]`, drop in your real number or link before you publish. A couple of items (formal user-testing results) are marked *in progress* — fill them in once you run that round, and don't claim results you don't have yet. Honesty is part of what makes a case study credible.
-
----
 
 ## Overview
 
 - **Role:** Product Manager — end to end (research, strategy, design, prototype, deployment). Solo project.
 - **Timeline:** `[e.g., ~4 weeks, part-time]`
 - **What it is:** A responsive web app that gives a casual Vancouverite three good, low-effort outing picks in under a minute — tailored to their neighbourhood, time, energy, transport, weather, and whether they've got a dog.
-- **Live prototype:** `[your-github-pages-link]`
+- **Live prototype:** `[[your-github-pages-link]](https://anastasiyasparynyak-rgb.github.io/easy-outdoor-/)`
 - **Why I built it:** To demonstrate end-to-end product thinking as I transition into product management. I deliberately chose a problem *outside* my day-to-day domain to show the skills travel.
 
 **One-line outcome:** Took a vague idea to a named, live, research-driven prototype — with the discovery, competitive analysis, and iteration to back every decision.
