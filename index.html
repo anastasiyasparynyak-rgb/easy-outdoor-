@@ -70,10 +70,13 @@
   .card.top{border-color:var(--accent);border-width:1.5px}
   .card.is-done{opacity:.62}
   .cap{position:relative;height:98px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .cap.has-photo{height:150px}
   .cap .glyph{position:relative;z-index:1}
   .cap svg.topo{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
-  .pill{position:absolute;z-index:2;top:10px;left:10px;background:var(--panel);color:var(--accent);font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
-  .donebadge{position:absolute;z-index:2;top:10px;right:10px;background:var(--teal);color:#fff;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+  .cap img.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+  .photocredit{position:absolute;z-index:3;right:8px;bottom:6px;max-width:75%;font-size:10.5px;line-height:1.3;color:#fff;background:rgba(0,0,0,.55);padding:2px 7px;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pill{position:absolute;z-index:3;top:10px;left:10px;background:var(--panel);color:var(--accent);font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+  .donebadge{position:absolute;z-index:3;top:10px;right:10px;background:var(--teal);color:#fff;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
   .body{padding:13px 15px 15px;display:flex;flex-direction:column;gap:9px;flex:1}
   .title-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   .title-row .name{font-weight:600;font-size:15.5px;letter-spacing:-.01em}
@@ -90,6 +93,9 @@
   .facts{display:flex;flex-wrap:wrap;gap:12px;padding-top:2px}
   .fact{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft)}
   .fact svg{color:var(--accent);flex:none}
+  .fact.pk-free{color:var(--teal);font-weight:500}
+  .fact.pk-free svg{color:var(--teal)}
+  .fact.pk-check{color:var(--hint)}
   .detail{display:none;border-top:1px solid var(--line);margin-top:4px;padding-top:10px;font-size:12.5px;color:var(--ink-soft)}
   .detail.open{display:block}
   .detail div{display:flex;gap:6px;padding:2px 0}
@@ -105,8 +111,10 @@
   .filters{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
   .filters .lead{font-size:13px;color:var(--hint);align-self:center}
   .chips{display:flex;gap:6px;flex-wrap:wrap}
-  .chip-t{font-family:inherit;font-size:12.5px;padding:6px 11px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer}
+  .chip-t{font-family:inherit;font-size:12.5px;padding:6px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;text-align:left;line-height:1.25}
+  .chip-t small{font-size:10.5px;font-weight:400;color:var(--hint)}
   .chip-t.on{background:var(--accent-tint);border-color:transparent;color:var(--accent-deep);font-weight:500}
+  .chip-t.on small{color:var(--accent-deep);opacity:.8}
   .empty{padding:28px 18px;text-align:center;color:var(--ink-soft);font-size:15px}
   footer{padding:24px 0 40px;color:var(--hint);font-size:12.5px;border-top:1px solid var(--line);margin-top:26px}
   footer b{color:var(--ink-soft);font-weight:600}
@@ -157,42 +165,65 @@
     <p class="storenote" id="storeNote"></p>
   </section>
 
-  <footer><b>Prototype.</b> Outing details (difficulty, transit, seasonal, dog, parking) are researched from public sources but approximate &mdash; parking, hours and leash rules vary, so check before you go. Weather is live from Open-Meteo. Your "done" list is saved only in this browser, on this device &mdash; no account, not shared. Fun facts are light local trivia. Not affiliated with any listed park or service.</footer>
+  <footer><b>Prototype.</b> Outing details (difficulty, transit, seasonal notes, dog rules, parking) are researched from public sources, last checked October 2026, but are approximate &mdash; parking prices, hours and leash rules change, so check the meter or sign before you go. Where a parking fee couldn't be confirmed, the card says so. Travel times are rough estimates from the centre of each area. Weather is live from Open-Meteo. Photo credits appear on each photo. Your "done" list is saved only in this browser, on this device &mdash; no account, not shared. Fun facts are light local trivia. Not affiliated with any listed park or service.</footer>
 </div>
 
 <script>
-const AREAS=["Downtown","Burnaby","Coquitlam","Richmond","North Shore"];
-const COORDS={Downtown:[49.283,-123.118],Burnaby:[49.248,-122.98],Coquitlam:[49.284,-122.793],Richmond:[49.166,-123.133],"North Shore":[49.32,-123.07]};
+const AREAS=["Downtown","Kitsilano","Burnaby","Coquitlam","Richmond","North Shore"];
+const COORDS={Downtown:[49.283,-123.118],Kitsilano:[49.2735,-123.1545],Burnaby:[49.248,-122.98],Coquitlam:[49.284,-122.793],Richmond:[49.166,-123.133],"North Shore":[49.32,-123.07]};
 const TIME=[{id:"short",label:"A couple of hours",cap:2.5},{id:"half",label:"Half-day",cap:5},{id:"full",label:"Full day",cap:12}];
 const ENERGY=[{id:"easy",label:"Easy / relaxed",allows:["easy"]},{id:"mod",label:"A bit of a workout",allows:["easy","moderate"]},{id:"hard",label:"Up for a challenge",allows:["easy","moderate","hard"]}];
-const DIST={any:999,"30":30,"45":45,"60":60};
-const CATS={walk:{t:"#dde2f5",dt:"#232a45",ink:"#47539a",dink:"#aeb8ee"},hike:{t:"#ecddea",dt:"#2d2130",ink:"#7a3b69",dink:"#d7a9cd"},bike:{t:"#d5eae6",dt:"#16302b",ink:"#1f6e64",dink:"#7fcdc0"},chill:{t:"#f6e3d6",dt:"#33261c",ink:"#a55a2e",dink:"#e0a878"}};
+const DIST={any:999,"5":5,"10":10,"15":15,"30":30,"45":45,"60":60};
+/* Activity types: shown as filter chips with a one-line plain-language definition */
+const TYPES=[
+  ["city","City & food","streets, markets, cafés"],
+  ["water","Beaches & waterfront","sand, seawall, views"],
+  ["nature","Nature walks","park or forest trails, mostly flat"],
+  ["hike","Hikes","uphill or stairs — proper shoes"],
+  ["bike","Bike rides","paved or separated paths"]
+];
+const CATS={
+  city:{t:"#dde2f5",dt:"#232a45",ink:"#47539a",dink:"#aeb8ee"},
+  water:{t:"#f6e3d6",dt:"#33261c",ink:"#a55a2e",dink:"#e0a878"},
+  nature:{t:"#d5eae6",dt:"#16302b",ink:"#1f6e64",dink:"#7fcdc0"},
+  hike:{t:"#ecddea",dt:"#2d2130",ink:"#7a3b69",dink:"#d7a9cd"},
+  bike:{t:"#dde8f4",dt:"#16233a",ink:"#3a6ea5",dink:"#8fb4dd"}
+};
+const MOBI="Mobi bike share: $1.25 to unlock + $0.29/min (classic bike) — check the app for current prices";
+/* t = typical door-to-door minutes from each area (rough estimates). pk = [status, label]; status: paid | free | limited | check | none */
 const D=[
-  {name:"Stanley Park Seawall",cat:"bike",type:"Walk or bike",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"just yourself",beginner:true,wx:"any",park:"Paid lots around the park; busy on nice days",cost:"Free (paid parking)",why:"Flat, scenic loop \u2014 bail out whenever you like.",t:{Downtown:12,Burnaby:35,Coquitlam:55,Richmond:40,"North Shore":30}},
-  {name:"Lighthouse Park",cat:"walk",type:"Coastal walk",effort:"easy",dur:2,durLabel:"about 2 hrs",bring:"water, proper shoes",beginner:true,wx:"dry",park:"Free lot \u2014 fills early on sunny days",cost:"Free",warn:"Rocks get slippery when wet \u2014 wear proper shoes.",why:"Old-growth forest and ocean viewpoints, easy to follow.",t:{Downtown:45,Burnaby:55,Coquitlam:75,Richmond:65,"North Shore":30}},
-  {name:"Lynn Canyon Park",cat:"walk",type:"Forest walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"runners, water",beginner:true,wx:"rain",park:"Free lot, busy midday",cost:"Free",why:"Free suspension bridge and creek pools; great in the rain.",t:{Downtown:45,Burnaby:40,Coquitlam:45,Richmond:60,"North Shore":20}},
-  {name:"Quarry Rock, Deep Cove",cat:"hike",type:"Hike",effort:"moderate",dur:2,durLabel:"about 2 hrs",bring:"water, snacks",beginner:false,wx:"dry",park:"Very limited in Deep Cove \u2014 transit is better",cost:"Free",warn:"Lots of stairs \u2014 it'll get your heart rate up.",why:"Rewarding lookout over Deep Cove and the inlet.",t:{Downtown:55,Burnaby:45,Coquitlam:50,Richmond:70,"North Shore":30}},
-  {name:"Grouse Grind",cat:"hike",type:"Hike",effort:"hard",dur:2,durLabel:"1.5\u20132 hrs up",bring:"water, real shoes",beginner:false,wx:"dry",park:"Paid lot at the base; fills fast",cost:"Free climb \u00b7 gondola down ~$25",warn:"Very steep, non-stop climb \u2014 not a beginner trail.",why:"The city's famous stair-workout, with a gondola down.",t:{Downtown:40,Burnaby:45,Coquitlam:50,Richmond:60,"North Shore":20}},
-  {name:"Burnaby Mountain (SFU)",cat:"walk",type:"Viewpoint walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"water, layers",beginner:true,wx:"any",park:"Free lots up top",cost:"Free",why:"Easy trails, rose gardens and big views up top.",t:{Downtown:45,Burnaby:20,Coquitlam:30,Richmond:55,"North Shore":55}},
-  {name:"Pacific Spirit Park (UBC)",cat:"walk",type:"Forest trails",effort:"easy",dur:2,durLabel:"1\u20133 hrs",bring:"runners",beginner:true,wx:"rain",park:"Street + small trailhead lots",cost:"Free",why:"Endless soft forest trails \u2014 pick any length.",t:{Downtown:35,Burnaby:45,Coquitlam:65,Richmond:35,"North Shore":50}},
-  {name:"Central Valley Greenway",cat:"bike",type:"Bike route",effort:"easy",dur:2.5,durLabel:"2\u20133 hrs",bring:"a bike, water",beginner:true,wx:"any",park:"No lot \u2014 hop on from any SkyTrain stop",cost:"Free",why:"Flat, separated bike path; ride a stretch and SkyTrain back.",t:{Downtown:15,Burnaby:12,Coquitlam:35,Richmond:45,"North Shore":50}},
-  {name:"Deer Lake, Burnaby",cat:"walk",type:"Lakeside walk",effort:"easy",dur:1,durLabel:"about 1 hr",bring:"just yourself",beginner:true,wx:"any",park:"Free lots, usually easy",cost:"Free",why:"Quiet, pretty and genuinely low effort.",t:{Downtown:35,Burnaby:10,Coquitlam:30,Richmond:40,"North Shore":45}},
-  {name:"Jericho & Spanish Banks",cat:"chill",type:"Beach & chill",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a blanket, snacks",beginner:true,wx:"dry",park:"Big lots; fill up on sunny days",cost:"Free (paid parking in summer)",why:"Sit, stroll and watch the sunset over the water.",t:{Downtown:25,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":40}},
-  {name:"Steveston Village & dyke",cat:"walk",type:"Village & walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"cash for snacks",beginner:true,wx:"any",park:"Paid village lots, busy weekends",cost:"Free (paid parking)",why:"Flat waterfront walk with food at the end.",t:{Downtown:45,Burnaby:40,Coquitlam:55,Richmond:15,"North Shore":65}},
-  {name:"Capilano River Park",cat:"walk",type:"Forest walk",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"runners, water",beginner:true,wx:"rain",park:"Free lot at the hatchery",cost:"Free",why:"Free river-canyon trails near the salmon hatchery.",t:{Downtown:35,Burnaby:40,Coquitlam:50,Richmond:55,"North Shore":15}},
-  {name:"Barnet Marine Park",cat:"chill",type:"Waterfront chill",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a blanket",beginner:true,wx:"any",park:"Free lot, small",cost:"Free",why:"Low-key waterfront spot that's rarely packed.",t:{Downtown:40,Burnaby:20,Coquitlam:25,Richmond:55,"North Shore":45}},
-  {name:"Coquitlam Crunch",cat:"hike",type:"Stair workout",effort:"hard",dur:1.5,durLabel:"1\u20131.5 hrs",bring:"water, good shoes",beginner:false,wx:"any",park:"Small lots / street at the access points",cost:"Free",warn:"Steep, relentless stairs and no real views.",why:"A no-views stair grind if you just want the workout.",t:{Downtown:50,Burnaby:35,Coquitlam:15,Richmond:60,"North Shore":55}},
-  {name:"Buntzen Lake",cat:"hike",type:"Lake & trails",effort:"moderate",dur:3,durLabel:"2\u20134 hrs",bring:"water, snacks, swimsuit",beginner:false,wx:"dry",park:"Free gated lot \u2014 closes when full on hot days",cost:"Free",warn:"The seasonal bus (179) runs summer weekends only \u2014 check first.",why:"Swim, picnic and easy lakeside loops.",t:{Downtown:70,Burnaby:45,Coquitlam:35,Richmond:80,"North Shore":75}},
-  {name:"Jug Island Beach, Belcarra",cat:"walk",type:"Forest & beach",effort:"moderate",dur:2.5,durLabel:"2\u20133 hrs",bring:"water, snacks",beginner:false,wx:"dry",park:"Belcarra lot fills fast on sunny weekends",cost:"Free",warn:"The Belcarra bus (182) is seasonal, mostly summer weekends.",why:"Forest walk out to a quiet beach with island views.",t:{Downtown:65,Burnaby:45,Coquitlam:35,Richmond:80,"North Shore":70}},
-  {name:"Dog Mountain, Mt Seymour",cat:"hike",type:"Mountain viewpoint",effort:"easy",dur:2,durLabel:"about 2 hrs",bring:"proper shoes, water",beginner:false,carOnly:true,wx:"dry",park:"Paid lot at Mt Seymour (car needed)",cost:"Free trail \u00b7 paid parking",warn:"Slippery roots, and you'll need a car \u2014 no summer transit.",why:"Short trail to a huge Vancouver viewpoint.",t:{Downtown:40,Burnaby:45,Coquitlam:50,Richmond:60,"North Shore":25}},
-  {name:"Iona Beach, Richmond",cat:"chill",type:"Beach & jetty",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a jacket, water",beginner:true,carOnly:true,wx:"dry",park:"Free lot",cost:"Free",warn:"Little transit out here \u2014 easiest with a car.",why:"Long, quiet jetty walk right out into the ocean.",t:{Downtown:35,Burnaby:40,Coquitlam:55,Richmond:20,"North Shore":50}},
-  {name:"Gastown",cat:"walk",type:"City stroll",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"cash for coffee & eats",beginner:true,wx:"any",park:"Paid street & lots; transit is easiest",cost:"Free to wander",why:"Cobblestone streets, caf\u00e9s, patios and shops \u2014 easy to graze and people-watch.",t:{Downtown:6,Burnaby:30,Coquitlam:50,Richmond:35,"North Shore":30}},
-  {name:"Yaletown",cat:"walk",type:"Dining & patios",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a dinner reservation",beginner:true,wx:"any",park:"Paid street/lots; Canada Line nearby",cost:"Free to wander",why:"Brick warehouses turned restaurants, patios and shops by the water.",t:{Downtown:8,Burnaby:28,Coquitlam:48,Richmond:28,"North Shore":35}},
-  {name:"Kitsilano Beach & West 4th",cat:"chill",type:"Beach & eats",effort:"easy",dur:2,durLabel:"1\u20132 hrs",bring:"a towel, cash for brunch",beginner:true,wx:"dry",park:"Beach lots (paid in summer) + street",cost:"Free (paid parking)",why:"Sandy beach and sunset volleyball, then brunch and shops on West 4th.",t:{Downtown:15,Burnaby:35,Coquitlam:55,Richmond:30,"North Shore":35}},
-  {name:"Coal Harbour Seawall",cat:"walk",type:"Harbour stroll",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a coffee",beginner:true,wx:"any",park:"Paid lots; transit easiest",cost:"Free (paid parking)",why:"Flat harbour-front stroll past marinas and floatplanes.",t:{Downtown:5,Burnaby:30,Coquitlam:50,Richmond:35,"North Shore":25}},
-  {name:"English Bay & Second Beach",cat:"chill",type:"Beach & seawall",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"a blanket",beginner:true,wx:"dry",park:"Paid street/lots",cost:"Free (paid parking)",why:"Beach, seawall and sunsets from the West End to Second Beach.",t:{Downtown:8,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":30}},
-  {name:"Chinatown",cat:"walk",type:"Historic & food",effort:"easy",dur:1.5,durLabel:"1\u20132 hrs",bring:"cash for dumplings",beginner:true,wx:"any",park:"Paid street/lots",cost:"Free to wander",why:"Historic streets, dumplings and the Sun Yat-Sen garden.",t:{Downtown:7,Burnaby:28,Coquitlam:48,Richmond:35,"North Shore":35}},
-  {name:"Granville Island",cat:"walk",type:"Market & arts",effort:"easy",dur:2,durLabel:"1\u20133 hrs",bring:"an appetite",beginner:true,wx:"any",park:"Busy paid lots; transit/ferry easiest",cost:"Free to wander",why:"Public market, food stalls, artisan shops and buskers.",t:{Downtown:12,Burnaby:30,Coquitlam:50,Richmond:25,"North Shore":35}}
+  {name:"Stanley Park Seawall",cats:["water","bike"],type:"Walk or bike",effort:"easy",dur:1.5,durLabel:"~1 hr by bike · 2–3 hrs on foot (about 10 km loop)",bring:"water, layers",beginner:true,wx:"any",park:"Paid lots inside the park (6 am–11 pm); free street parking mostly west of Denman St, with time limits",cost:"Free",pk:["paid","≈$13–14 for 3 hrs ($4.25–4.75/hr)"],warn:"Cyclists ride one way (counter-clockwise); walkers have their own lane.",why:"Flat, scenic loop — bail out whenever you like.",bike:MOBI+"; bike rental shops near Denman St (check hours)",t:{Downtown:12,Kitsilano:25,Burnaby:35,Coquitlam:55,Richmond:40,"North Shore":30}},
+  {name:"Lighthouse Park",cats:["nature"],type:"Coastal walk",effort:"easy",dur:2,durLabel:"about 2 hrs",bring:"water, proper shoes",beginner:true,wx:"dry",park:"Pay parking, 7 am–10 pm, no day pass — lot fills early on sunny days",cost:"Free",pk:["paid","$5.08/hr · ≈$10–15 for a visit"],warn:"Rocks get slippery when wet — wear proper shoes.",why:"Old-growth forest and ocean viewpoints, easy to follow.",t:{Downtown:45,Kitsilano:40,Burnaby:55,Coquitlam:75,Richmond:65,"North Shore":30}},
+  {name:"Lynn Canyon Park",cats:["nature"],type:"Forest walk",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"runners, water",beginner:true,wx:"rain",park:"Pay parking (about $3/hr at last check, 4-hr max); busy midday",cost:"Free (the suspension bridge is free)",pk:["paid","≈$3/hr · ~$6–9 for a visit (check the meter)"],why:"Free suspension bridge and creek pools; great in the rain.",t:{Downtown:45,Kitsilano:50,Burnaby:40,Coquitlam:45,Richmond:60,"North Shore":20}},
+  {name:"Quarry Rock, Deep Cove",cats:["hike"],type:"Hike",effort:"moderate",dur:2,durLabel:"about 2 hrs",bring:"water, snacks",beginner:false,wx:"dry",park:"No paid lot, but Deep Cove street parking is very limited — 3-hr limits and resident-only zones in summer; transit is better",cost:"Free",pk:["limited","No paid lot — street parking very limited"],warn:"Lots of stairs — it'll get your heart rate up.",why:"Rewarding lookout over Deep Cove and the inlet.",t:{Downtown:55,Kitsilano:60,Burnaby:45,Coquitlam:50,Richmond:70,"North Shore":30}},
+  {name:"Grouse Grind",cats:["hike"],type:"Hike",effort:"hard",dur:2,durLabel:"1.5–2 hrs up",bring:"water, real shoes",beginner:false,wx:"dry",park:"Grouse Mountain base lots, pay by app",cost:"Free climb · gondola ride down $20 (adult)",pk:["paid","$10 for 3 hrs · $12 all day"],warn:"Very steep, non-stop climb — not a beginner trail. Open spring to fall only; no walking down.",hours:"Spring–fall only; about 7 am–4:30 pm in early October, shorter as days shorten, closed when snow arrives",why:"The city's famous stair-workout, with a gondola down.",t:{Downtown:40,Kitsilano:45,Burnaby:45,Coquitlam:50,Richmond:60,"North Shore":20}},
+  {name:"Burnaby Mountain (SFU)",cats:["nature"],type:"Viewpoint walk",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"water, layers",beginner:true,wx:"any",park:"Lots along Centennial Way (rose garden) — main lot closes 10 pm",cost:"Free",pk:["check","No parking fee listed"],dogNote:"Dogs welcome on leash — keep them off steep slopes and out of streams",why:"Easy trails, rose gardens and big skyline views, best at sunset.",t:{Downtown:45,Kitsilano:50,Burnaby:20,Coquitlam:30,Richmond:55,"North Shore":55}},
+  {name:"Pacific Spirit Park (UBC)",cats:["nature"],type:"Forest trails",effort:"easy",dur:2,durLabel:"1–3 hrs",bring:"runners",beginner:true,wx:"rain",park:"Trailhead lots and street parking around the park",cost:"Free",pk:["check","Fees not confirmed — check signs"],dogNote:"Rules vary by trail: no dogs near Acadia Beach Mar–Sep, some trails closed to dogs on weekends/holidays",hours:"Opens 7 am; gates lock at the posted closing time (earliest 5 pm)",why:"About 55 km of soft forest trails — pick any length.",t:{Downtown:35,Kitsilano:15,Burnaby:45,Coquitlam:65,Richmond:35,"North Shore":50}},
+  {name:"Central Valley Greenway",cats:["bike"],type:"Bike route",effort:"easy",dur:2.5,durLabel:"2–3 hrs",bring:"a bike, water",beginner:true,wx:"any",park:"No lot needed — hop on from any SkyTrain station",cost:"Free",pk:["none","No parking needed"],bike:MOBI,why:"Flat, separated bike path; ride a stretch and SkyTrain back.",t:{Downtown:15,Kitsilano:20,Burnaby:12,Coquitlam:35,Richmond:45,"North Shore":50}},
+  {name:"Deer Lake, Burnaby",cats:["nature"],type:"Lakeside walk",effort:"easy",dur:1,durLabel:"about 1 hr",bring:"just yourself",beginner:true,wx:"any",park:"Several lots (Sperling Ave, Royal Oak Ave, Deer Lake Ave); lots close 10 pm",cost:"Free",pk:["check","No parking fee listed"],dogNote:"Leashed on all trails; no dogs on the beach or in the picnic area",why:"Quiet, pretty and genuinely low effort — with a museum, gardens and a sandy beach nearby.",t:{Downtown:35,Kitsilano:40,Burnaby:10,Coquitlam:30,Richmond:40,"North Shore":45}},
+  {name:"Jericho Beach",cats:["water"],type:"Beach & chill",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a blanket, snacks",beginner:true,wx:"dry",park:"Paid Park Board beach lots; fill up on sunny days",cost:"Free",pk:["paid","Paid — roughly $1.50–4.75/hr (check the kiosk)"],dogNote:"Dogs are generally not allowed on the sand — check posted signs",why:"Calm beach, big grassy park and sunsets over the water.",t:{Downtown:25,Kitsilano:12,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":40}},
+  {name:"Spanish Banks",cats:["water"],type:"Beach & walk",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a blanket, layers",beginner:true,wx:"dry",park:"Paid parking, made permanent in 2025 (seasonal pricing planned)",cost:"Free",pk:["paid","From $1.50/hr — check the kiosk for current rate"],dogNote:"Dogs are generally not allowed on the sand — check posted signs",why:"A long stretch of beach — at low tide the water goes far out.",t:{Downtown:25,Kitsilano:15,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":40}},
+  {name:"Steveston Village & dyke",cats:["city","water"],type:"Village & walk",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"cash for snacks",beginner:true,wx:"any",park:"Paid village lots; free street parking 10–15 min walk away, busy on weekends",cost:"Free (fish at the wharf at market prices)",pk:["paid","≈$2.50–3.50/hr (day max ~$15–20)"],how:"Canada Line to Richmond-Brighouse, then bus 401, 402 or 407",why:"Flat waterfront walk with food at the end.",t:{Downtown:45,Kitsilano:45,Burnaby:40,Coquitlam:55,Richmond:15,"North Shore":65}},
+  {name:"Capilano River Park",cats:["nature"],type:"Forest walk",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"runners, water",beginner:true,wx:"rain",park:"Lots at Cleveland Dam and the hatchery turnoff",cost:"Free (hatchery admission is free)",pk:["check","Fees not confirmed — check signs"],dogNote:"Leashed unless posted otherwise",hours:"Daylight hours; gates lock at the posted closing time (earliest 5 pm)",why:"Free river-canyon trails near the salmon hatchery.",t:{Downtown:35,Kitsilano:35,Burnaby:40,Coquitlam:50,Richmond:55,"North Shore":15}},
+  {name:"Barnet Marine Park",cats:["water"],type:"Waterfront chill",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a blanket",beginner:true,wx:"any",park:"Lots fill up in summer: 2–4 hr limits on summer weekends, traffic control 11 am–4 pm (May–Sep)",cost:"Free",pk:["check","No fee listed; time limits on summer weekends"],dogNote:"Off-leash area available; leashed elsewhere; not allowed on the beach",why:"Low-key waterfront with a sandy beach and a café in season.",t:{Downtown:40,Kitsilano:50,Burnaby:20,Coquitlam:25,Richmond:55,"North Shore":45}},
+  {name:"Coquitlam Crunch",cats:["hike"],type:"Stair workout",effort:"hard",dur:1.5,durLabel:"1–1.5 hrs",bring:"water, good shoes",beginner:false,wx:"any",park:"Lots at Eagle Ridge Park and Bramble Park",cost:"Free",pk:["check","Fees not confirmed — check signs"],warn:"All uphill: 2.2 km, about 240 m of climbing and 894 stairs.",why:"A tough stair-and-hill workout with city views along the way.",t:{Downtown:50,Kitsilano:60,Burnaby:35,Coquitlam:15,Richmond:60,"North Shore":55}},
+  {name:"Buntzen Lake",cats:["nature"],type:"Lake & trails",effort:"moderate",dur:3,durLabel:"2–4 hrs",bring:"water, snacks, swimsuit",beginner:false,wx:"dry",park:"Free BC Hydro reservation needed to drive in during summer",cost:"Free",pk:["free","Free — but reserve ahead in summer"],warn:"In summer (mid-May to early Sept) you need a free BC Hydro parking reservation to drive in; arriving by bike or transit doesn't. Check TransLink for service.",ltd:true,why:"Swim, picnic and easy lakeside loops.",t:{Downtown:70,Kitsilano:80,Burnaby:45,Coquitlam:35,Richmond:80,"North Shore":75}},
+  {name:"Jug Island Beach, Belcarra",cats:["hike"],type:"Forest hike to a beach",effort:"moderate",dur:2.5,durLabel:"2–3 hrs (6 km return)",bring:"water, snacks",beginner:false,wx:"dry",park:"Belcarra has seasonal pay parking (rate not confirmed); lots fill fast on sunny weekends",cost:"Free",pk:["check","Seasonal pay parking — rate not confirmed"],warn:"Several steep sections on an intermediate trail. Limited transit, so check TransLink.",ltd:true,dogNote:"Dogs welcome on leash",hours:"Park opens 7 am; gates lock at posted closing time (earliest 5 pm)",why:"Forest trail out to a quiet pocket beach with Indian Arm views.",t:{Downtown:65,Kitsilano:75,Burnaby:45,Coquitlam:35,Richmond:80,"North Shore":70}},
+  {name:"Dog Mountain, Mt Seymour",cats:["hike"],type:"Mountain viewpoint",effort:"easy",dur:2,durLabel:"about 2 hrs",bring:"proper shoes, water",beginner:false,carOnly:true,wx:"dry",park:"Mt Seymour lots: free May–Oct; in winter a BC Parks day-use pass is needed (check before you go)",cost:"Free",pk:["free","Free May–Oct · winter pass system"],warn:"Slippery roots, snow in winter, and you'll need a car (the winter resort shuttle is the only regular transit).",why:"Short trail to a huge Vancouver viewpoint.",t:{Downtown:40,Kitsilano:45,Burnaby:45,Coquitlam:50,Richmond:60,"North Shore":25}},
+  {name:"Iona Beach, Richmond",cats:["water"],type:"Beach & jetty",effort:"easy",dur:1.5,durLabel:"1–2.5 hrs (the long jetty is 8 km return)",bring:"a jacket, water",beginner:true,carOnly:true,wx:"dry",park:"Parking lot at the park",cost:"Free",pk:["check","No fee listed"],warn:"Very windy and exposed, tides change fast, and little transit — easiest with a car.",dogNote:"Leashed, except the lower road on the Iona jetty is off-leash",hours:"Daylight hours; gates lock at the posted closing time (earliest 5 pm)",why:"Long, quiet jetty walk right out into the ocean.",t:{Downtown:35,Kitsilano:35,Burnaby:40,Coquitlam:55,Richmond:20,"North Shore":50}},
+  {name:"Gastown",cats:["city"],type:"City stroll",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"cash for coffee & eats",beginner:true,wx:"any",park:"Street meters and lots; transit is easiest",cost:"Free to wander",pk:["paid","Street meters $1.50–8/hr (9 am–10 pm)"],why:"Cobblestone streets, cafés, patios and shops — easy to graze and people-watch.",t:{Downtown:6,Kitsilano:18,Burnaby:30,Coquitlam:50,Richmond:35,"North Shore":30}},
+  {name:"Yaletown",cats:["city"],type:"Dining & patios",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a dinner reservation",beginner:true,wx:"any",park:"Street meters and lots; Canada Line nearby",cost:"Free to wander",pk:["paid","Street meters $1.50–8/hr (9 am–10 pm)"],why:"Brick warehouses turned restaurants, patios and shops by the water.",t:{Downtown:8,Kitsilano:15,Burnaby:28,Coquitlam:48,Richmond:28,"North Shore":35}},
+  {name:"West 4th Avenue (Kitsilano)",cats:["city"],type:"Brunch & shops",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"cash for brunch",beginner:true,wx:"any",park:"Street meters; busy on weekends",cost:"Free to wander",pk:["paid","Street meters (rates vary by block)"],why:"Brunch spots, independent shops and cafés, a short walk from Kits Beach.",t:{Downtown:15,Kitsilano:5,Burnaby:35,Coquitlam:55,Richmond:30,"North Shore":35}},
+  {name:"Coal Harbour Seawall",cats:["water"],type:"Harbour stroll",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a coffee",beginner:true,wx:"any",park:"Street meters and lots; transit easiest",cost:"Free",pk:["paid","Street meters $1.50–8/hr (9 am–10 pm)"],why:"Flat harbour-front stroll past marinas and floatplanes.",t:{Downtown:5,Kitsilano:20,Burnaby:30,Coquitlam:50,Richmond:35,"North Shore":25}},
+  {name:"English Bay Beach",cats:["water"],type:"Beach & sunset",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a blanket",beginner:true,wx:"dry",park:"Street meters and nearby lots; busy at sunset and fireworks nights",cost:"Free",pk:["paid","Street meters $1.50–8/hr (9 am–10 pm)"],dogNote:"Dogs are generally not allowed on the sand — check posted signs",bike:MOBI,why:"The classic city beach: sunset views, the Inukshuk, cafés across the road.",t:{Downtown:8,Kitsilano:15,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":30}},
+  {name:"Sunset Beach",cats:["water"],type:"Beach & seawall",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a blanket",beginner:true,wx:"dry",park:"Street meters and nearby lots",cost:"Free",pk:["paid","Street meters $1.50–8/hr (9 am–10 pm)"],dogNote:"Dogs are generally not allowed on the sand — check posted signs",bike:MOBI,why:"A quieter stretch between English Bay and Granville Island — the seawall runs right past.",t:{Downtown:8,Kitsilano:15,Burnaby:35,Coquitlam:55,Richmond:35,"North Shore":30}},
+  {name:"Second Beach (Stanley Park)",cats:["water"],type:"Beach & pool",effort:"easy",dur:2,durLabel:"1–3 hrs",bring:"a towel, snacks",beginner:true,wx:"dry",park:"Stanley Park paid lots (6 am–11 pm)",cost:"Free beach · summer outdoor pool about $8 adult",pk:["paid","≈$13–14 for 3 hrs ($4.25–4.75/hr)"],dogNote:"Dogs are generally not allowed on the sand — check posted signs",why:"Beach with a seasonal outdoor pool and big lawns, set inside Stanley Park — a separate stop from English Bay.",t:{Downtown:15,Kitsilano:20,Burnaby:35,Coquitlam:55,Richmond:38,"North Shore":30}},
+  {name:"Third Beach (Stanley Park)",cats:["water"],type:"Beach & sunset",effort:"easy",dur:2,durLabel:"1–2 hrs",bring:"a blanket, layers",beginner:true,wx:"dry",park:"Stanley Park paid lots (6 am–11 pm)",cost:"Free",pk:["paid","≈$13–14 for 3 hrs ($4.25–4.75/hr)"],dogNote:"Dogs are generally not allowed on the sand — check posted signs",why:"Quieter, driftwood-lined beach further along the Stanley Park seawall — great for sunset.",t:{Downtown:20,Kitsilano:25,Burnaby:38,Coquitlam:58,Richmond:40,"North Shore":30}},
+  {name:"Kitsilano Beach & Pool",cats:["water"],type:"Beach & pool",effort:"easy",dur:2,durLabel:"1–3 hrs",bring:"a towel, cash for brunch",beginner:true,wx:"dry",park:"Paid Park Board lots (EasyPark); rate not published online",cost:"Free beach · pool admission in summer",pk:["paid","Paid — check the kiosk for the rate"],warn:"Lifeguards and the saltwater pool run late May–early Sept; the pool opens around mid-June.",dogNote:"Dogs are generally not allowed on the sand — check posted signs",bike:MOBI,why:"Sandy beach, volleyball and the Kitsilano saltwater pool; West 4th brunch is a short walk.",t:{Downtown:15,Kitsilano:5,Burnaby:35,Coquitlam:55,Richmond:30,"North Shore":35}},
+  {name:"Vanier Park & Kits Point",cats:["water"],type:"Park & waterfront",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"a coffee, layers",beginner:true,wx:"dry",park:"Park and street parking; check signs",cost:"Free",pk:["check","Rates not confirmed — check signs"],bike:MOBI,why:"Open lawns with skyline views, on the seawall between Granville Island and Kits Beach.",t:{Downtown:12,Kitsilano:8,Burnaby:30,Coquitlam:50,Richmond:28,"North Shore":35}},
+  {name:"Chinatown",cats:["city"],type:"Historic & food",effort:"easy",dur:1.5,durLabel:"1–2 hrs",bring:"cash for dumplings",beginner:true,wx:"any",park:"Street meters and lots",cost:"Free to wander",pk:["paid","Street meters $1.50–8/hr (9 am–10 pm)"],why:"Historic streets, dumplings and the Sun Yat-Sen garden.",t:{Downtown:7,Kitsilano:20,Burnaby:28,Coquitlam:48,Richmond:35,"North Shore":35}},
+  {name:"Granville Island",cats:["city"],type:"Market & arts",effort:"easy",dur:2,durLabel:"1–3 hrs",bring:"an appetite",beginner:true,wx:"any",park:"Paid lots, busy on weekends",cost:"Free to wander",pk:["paid","Summer 11–6: $3/hr weekdays, $6/hr weekends · $1/hr evenings"],how:"Also reachable by small passenger ferries from downtown and Vanier Park (check schedules)",bike:MOBI,why:"Public market, food stalls, artisan shops and buskers.",t:{Downtown:12,Kitsilano:8,Burnaby:30,Coquitlam:50,Richmond:25,"North Shore":35}},
+  {name:"Seawall ride: Downtown to Kits",cats:["bike","water"],type:"Bike ride",effort:"easy",dur:2.5,durLabel:"2–3 hrs with stops (about 8 km one way)",bring:"a bike or Mobi, water, a lock",beginner:true,wx:"dry",park:"Leave the car at home — start downtown",cost:"Free (bike hire extra)",pk:["none","No parking needed"],route:{origin:"Vancouver Convention Centre",dest:"Kitsilano Beach Park Vancouver",via:["Sunset Beach Park Vancouver","Granville Island Vancouver"],mode:"bicycling"},bike:MOBI+" — grab a bike downtown, ride, and take transit back if you're tired",hours:"Seawall is open all day; beaches and shops keep their own hours",why:"A flat, mostly separated path past English Bay and Granville Island to Kits Beach — pick a few stops on the way.",t:{Downtown:10,Kitsilano:10,Burnaby:30,Coquitlam:50,Richmond:35,"North Shore":30}}
 ];
 const NODOG=new Set(["Grouse Grind"]);
 D.forEach(o=>o.dog=!NODOG.has(o.name));
@@ -201,38 +232,53 @@ const FF={
 "Grouse Grind":"Locals call it 'Mother Nature's Stairmaster'.",
 "Quarry Rock, Deep Cove":"Reward the climb with a famous Honey Doughnut in Deep Cove.",
 "Lighthouse Park":"Home to the 1912 Point Atkinson Lighthouse, a national historic site.",
-"Lynn Canyon Park":"Its suspension bridge is free \u2014 unlike the famous Capilano one.",
-"Stanley Park Seawall":"~10 km of uninterrupted waterfront \u2014 one of the world's longest such paths.",
-"Dog Mountain, Mt Seymour":"Yes, it's really called Dog Mountain \u2014 bring the pup.",
+"Lynn Canyon Park":"Its suspension bridge is free — unlike the famous Capilano one.",
+"Stanley Park Seawall":"~10 km of uninterrupted waterfront — one of the world's longest such paths.",
+"Dog Mountain, Mt Seymour":"Yes, it's really called Dog Mountain — bring the pup.",
 "Gastown":"Home to the landmark Gastown Steam Clock; the district's named after saloon-keeper 'Gassy Jack'.",
-"Yaletown":"A former railway warehouse district \u2014 the old loading docks are now patios.",
-"Kitsilano Beach & West 4th":"Kits Pool is Canada's longest \u2014 137 m of heated saltwater.",
+"Yaletown":"A former railway warehouse district — the old loading docks are now patios.",
+"Kitsilano Beach & Pool":"Kits Pool is Canada's longest — 137 m of heated saltwater.",
 "Coal Harbour Seawall":"Watch floatplanes take off right from the downtown harbour.",
-"English Bay & Second Beach":"Host of the summer Celebration of Light fireworks.",
-"Chinatown":"Home to the Sam Kee Building \u2014 one of the world's narrowest commercial buildings.",
+"English Bay Beach":"Host of the summer Celebration of Light fireworks.",
+"Chinatown":"Home to the Sam Kee Building — one of the world's narrowest commercial buildings.",
 "Granville Island":"A former industrial island, now a public market and arts hub."
 };
 D.forEach(o=>{if(FF[o.name])o.funFact=FF[o.name];});
+/* Loop walks shown as Google Maps walking routes (origin = destination). Spots with a "route" field use that instead. */
 const WALK={
 "Stanley Park Seawall":["Stanley Park Information Booth Vancouver","Brockton Point Stanley Park Vancouver"],
 "Steveston Village & dyke":["Steveston Village Richmond BC","Steveston Fishermans Wharf Richmond","Garry Point Park Richmond BC"],
 "Gastown":["Gastown Steam Clock Vancouver","Maple Tree Square Gastown Vancouver","Water Street Gastown Vancouver"],
 "Yaletown":["Yaletown-Roundhouse Station Vancouver","David Lam Park Vancouver","Mainland Street Yaletown Vancouver"],
-"Kitsilano Beach & West 4th":["Kitsilano Beach Park Vancouver","Kitsilano Pool Vancouver","West 4th Avenue Kitsilano Vancouver"],
+"West 4th Avenue (Kitsilano)":["West 4th Avenue Kitsilano Vancouver","Kitsilano Beach Park Vancouver"],
 "Coal Harbour Seawall":["Vancouver Convention Centre","Coal Harbour Seawall Vancouver","Devonian Harbour Park Vancouver"],
-"English Bay & Second Beach":["English Bay Beach Vancouver","Second Beach Stanley Park Vancouver"],
+"English Bay Beach":["English Bay Beach Vancouver","Sunset Beach Park Vancouver"],
 "Chinatown":["Millennium Gate Chinatown Vancouver","Dr Sun Yat-Sen Classical Chinese Garden Vancouver","Sam Kee Building Vancouver"],
 "Granville Island":["Granville Island Public Market Vancouver","Granville Island Vancouver"]
 };
 D.forEach(o=>{if(WALK[o.name])o.walk=WALK[o.name];});
 
-const state={area:"Downtown",time:"half",transport:"transit",energy:"easy",dog:"any",wxMode:"auto",dist:"any",count:"3",types:new Set(["walk","hike","bike","chill"])};
+/* PHOTOS
+   Put one image per spot in an "images" folder next to index.html. The filename is the spot name in lowercase with
+   dashes, e.g. images/stanley-park-seawall.jpg. .jpg, .jpeg, .png and .webp all work.
+   If no file exists the card falls back to the illustrated header. Add a credit below for any photo that needs one
+   (most free-licence photos do), e.g. "Photo: Jane Doe / CC BY-SA 4.0". It appears on the photo. */
+const PHOTO_DIR="images/";
+const PHOTO_EXTS=["jpg","jpeg","png","webp"];
+const PHOTO_CREDITS={
+  // "Stanley Park Seawall":"Photo: Name / CC BY-SA 4.0",
+};
+function slug(s){return s.toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
+D.forEach(o=>{o.img=PHOTO_DIR+slug(o.name);o.credit=PHOTO_CREDITS[o.name]||"";});
+
+const state={area:"Downtown",time:"half",transport:"transit",energy:"easy",dog:"any",wxMode:"auto",dist:"any",count:"3",types:new Set(TYPES.map(t=>t[0]))};
 let rotate=0,hideDone=false,liveWet=false;
 let weather={loaded:false,ok:false,days:[]};
 const el=id=>document.getElementById(id);
 let done=(function(){try{return new Set(JSON.parse(localStorage.getItem("wend_done")||"[]"));}catch(e){return new Set();}})();
 function saveDone(){try{localStorage.setItem("wend_done",JSON.stringify([...done]));}catch(e){}}
 function isWet(){return state.wxMode==="wet"||(state.wxMode==="auto"&&liveWet);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
 function opt(v,l){const o=document.createElement("option");o.value=v;o.textContent=l;return o;}
 function fillSelects(){
@@ -242,20 +288,20 @@ function fillSelects(){
   ENERGY.forEach(e=>el("energy").appendChild(opt(e.id,e.label)));
   [["any","Doesn't matter"],["yes","Bringing my dog"]].forEach(x=>el("dog").appendChild(opt(x[0],x[1])));
   el("area").value=state.area;el("time").value=state.time;el("transport").value=state.transport;el("energy").value=state.energy;el("dog").value=state.dog;
-  [["any","Anywhere"],["30","\u226430 min"],["45","\u226445 min"],["60","\u22641 hr"]].forEach(x=>el("dist").appendChild(opt(x[0],x[1])));
+  [["any","Anywhere"],["5","≤5 min"],["10","≤10 min"],["15","≤15 min"],["30","≤30 min"],["45","≤45 min"],["60","≤1 hr"]].forEach(x=>el("dist").appendChild(opt(x[0],x[1])));
   [["3","3 spots"],["6","6 spots"],["999","All"]].forEach(x=>el("count").appendChild(opt(x[0],x[1])));
   el("dist").value=state.dist;el("count").value=state.count;
-  [["walk","Walks"],["hike","Hikes"],["bike","Bike"],["chill","Beach & chill"]].forEach(x=>{const b=document.createElement("button");b.type="button";b.className="chip-t"+(state.types.has(x[0])?" on":"");b.textContent=x[1];b.onclick=()=>{state.types.has(x[0])?state.types.delete(x[0]):state.types.add(x[0]);b.classList.toggle("on");rotate=0;render();};el("typeChips").appendChild(b);});
+  TYPES.forEach(x=>{const b=document.createElement("button");b.type="button";b.className="chip-t"+(state.types.has(x[0])?" on":"");b.innerHTML="<span>"+x[1]+"</span><small>"+x[2]+"</small>";b.onclick=()=>{state.types.has(x[0])?state.types.delete(x[0]):state.types.add(x[0]);b.classList.toggle("on");rotate=0;render();};el("typeChips").appendChild(b);});
 }
 function icon(n){
   const s='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
-  const p={pin:'<path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',bag:'<path d="M6 8h12l-1 12H7zM9 8V6a3 3 0 016 0v2"/>',warn:'<path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',check:'<path d="M20 6L9 17l-5-5"/>',plus:'<path d="M12 5v14M5 12h14"/>',refresh:'<path d="M4 12a8 8 0 0113-6l3 2M20 12a8 8 0 01-13 6l-3-2"/><path d="M20 4v4h-4M4 20v-4h4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',star:'<path d="M12 3l2.6 5.9L21 9.6l-4.5 4.2L17.8 21 12 17.6 6.2 21l1.3-7.2L3 9.6l6.4-.7z"/>',paw:'<circle cx="6" cy="11" r="1.5"/><circle cx="9.5" cy="8" r="1.5"/><circle cx="14.5" cy="8" r="1.5"/><circle cx="18" cy="11" r="1.5"/><path d="M12 12c-2.4 0-4 1.9-4 3.4S9.2 18 12 18s4-1.1 4-2.6S14.4 12 12 12z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/>',cloud:'<path d="M7 17h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 17z"/>',rain:'<path d="M7 14h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 14z"/><path d="M8 18l-1 2M12 18l-1 2M16 18l-1 2"/>',snow:'<path d="M7 14h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 14z"/><path d="M9 18v.01M12 19v.01M15 18v.01"/>',spark:'<path d="M12 3l1.3 4.6L17.5 9l-4.6 1.4L12 15l-1.4-4.6L6.5 9l4.6-1.4z"/>'};
+  const p={pin:'<path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',bag:'<path d="M6 8h12l-1 12H7zM9 8V6a3 3 0 016 0v2"/>',car:'<path d="M5 16l1.6-5.2A2 2 0 018.5 9.4h7a2 2 0 011.9 1.4L19 16"/><path d="M4 16h16v3H4zM7 19v1.5M17 19v1.5"/>',warn:'<path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',check:'<path d="M20 6L9 17l-5-5"/>',plus:'<path d="M12 5v14M5 12h14"/>',refresh:'<path d="M4 12a8 8 0 0113-6l3 2M20 12a8 8 0 01-13 6l-3-2"/><path d="M20 4v4h-4M4 20v-4h4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',star:'<path d="M12 3l2.6 5.9L21 9.6l-4.5 4.2L17.8 21 12 17.6 6.2 21l1.3-7.2L3 9.6l6.4-.7z"/>',paw:'<circle cx="6" cy="11" r="1.5"/><circle cx="9.5" cy="8" r="1.5"/><circle cx="14.5" cy="8" r="1.5"/><circle cx="18" cy="11" r="1.5"/><path d="M12 12c-2.4 0-4 1.9-4 3.4S9.2 18 12 18s4-1.1 4-2.6S14.4 12 12 12z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/>',cloud:'<path d="M7 17h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 17z"/>',rain:'<path d="M7 14h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 14z"/><path d="M8 18l-1 2M12 18l-1 2M16 18l-1 2"/>',snow:'<path d="M7 14h9a3.5 3.5 0 000-7 5 5 0 00-9.6 1.3A3 3 0 007 14z"/><path d="M9 18v.01M12 19v.01M15 18v.01"/>',spark:'<path d="M12 3l1.3 4.6L17.5 9l-4.6 1.4L12 15l-1.4-4.6L6.5 9l4.6-1.4z"/>'};
   return s+(p[n]||"")+"</svg>";
 }
 function catGlyph(cat){
   const c='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">';
-  const p={hike:'<path d="M3 20h18M6 20l4-11 3 6 2-3 3 8"/><circle cx="14" cy="5" r="1.4"/>',walk:'<circle cx="13" cy="4.5" r="1.6"/><path d="M11 21l1.5-6-2-3 1-4 3 3 2 1M10 12l-1 4"/>',bike:'<circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17l4-7h5l-3 7M9 7h3"/>',chill:'<path d="M3 18h18M5 18c0-3 3-5 7-5s7 2 7 5M12 13V8M9 8h6"/>'};
-  return c+(p[cat]||p.walk)+"</svg>";
+  const p={hike:'<path d="M3 20h18M6 20l4-11 3 6 2-3 3 8"/><circle cx="14" cy="5" r="1.4"/>',city:'<path d="M4 20V9l5-3v14M9 20V4l6 3v13M15 20v-8l5 2v6M3 20h18"/>',nature:'<path d="M12 21v-5M12 3l4.5 6.5h-3L17 15H7l3.5-5.5h-3z"/>',bike:'<circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17l4-7h5l-3 7M9 7h3"/>',water:'<path d="M3 18h18M5 18c0-3 3-5 7-5s7 2 7 5M12 13V8M9 8h6"/>'};
+  return c+(p[cat]||p.city)+"</svg>";
 }
 function topo(color){return '<svg class="topo" viewBox="0 0 300 100" preserveAspectRatio="none" fill="none" stroke="'+color+'" stroke-width="1.4"><path d="M-5 28 C 60 8, 110 52, 170 28 S 280 4, 320 30"/><path d="M-5 52 C 70 32, 120 76, 180 52 S 285 30, 320 55"/><path d="M-5 78 C 60 62, 120 100, 190 78 S 285 58, 320 82"/></svg>';}
 function isDark(){return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;}
@@ -280,11 +326,11 @@ function renderWx(){
   const wet=isWet();
   let left="";
   if(weather.ok&&weather.days.length){
-    left='<div class="wxnow">'+weather.days.slice(0,2).map(x=>'<span class="wxday">'+icon(wxGlyph(x.code))+' <b>'+x.tmax+'\u00b0</b> '+dayName(x.date)+(x.pp!=null?' \u00b7 '+x.pp+'%':'')+'</span>').join('')+(wet?'<span class="wxnote">Looks wet \u2014 rain-friendly picks first</span>':'')+'</div>';
+    left='<div class="wxnow">'+weather.days.slice(0,2).map(x=>'<span class="wxday">'+icon(wxGlyph(x.code))+' <b>'+x.tmax+'°</b> '+dayName(x.date)+(x.pp!=null?' · '+x.pp+'%':'')+'</span>').join('')+(wet?'<span class="wxnote">Looks wet — rain-friendly picks first</span>':'')+'</div>';
   }else if(weather.loaded){
-    left='<div class="wxnow">'+icon("info")+' Forecast unavailable right now \u2014 plan for a dry or wet day below.'+(wet?' <span class="wxnote">Showing rain-friendly picks</span>':'')+'</div>';
+    left='<div class="wxnow">'+icon("info")+' Forecast unavailable right now — plan for a dry or wet day below.'+(wet?' <span class="wxnote">Showing rain-friendly picks</span>':'')+'</div>';
   }else{
-    left='<div class="wxnow">'+icon("cloud")+' Checking the forecast for '+state.area+'\u2026</div>';
+    left='<div class="wxnow">'+icon("cloud")+' Checking the forecast for '+state.area+'…</div>';
   }
   const seg='<div style="display:flex;align-items:center"><span class="seg-label">Planning for</span><div class="seg">'
     +['auto','dry','wet'].map(m=>'<button data-m="'+m+'"'+(state.wxMode===m?' class="on"':'')+'>'+(m==="auto"?"Auto":m==="dry"?"Dry day":"Wet day")+'</button>').join('')+'</div></div>';
@@ -301,7 +347,7 @@ function matches(){
     if(o.dur>cap)return false;
     if(!allows.includes(o.effort))return false;
     if(state.dog==="yes"&&!o.dog)return false;
-    if(!state.types.has(o.cat))return false;
+    if(!o.cats.some(c=>state.types.has(c)))return false;
     if((o.t[state.area]||999)>DIST[state.dist])return false;
     return true;
   });
@@ -321,37 +367,48 @@ function matches(){
   return list;
 }
 function detailBlock(o){
-  const transit=o.carOnly?"Car needed \u2014 limited transit":"Transit-accessible (~"+o.t[state.area]+" min from "+state.area+")";
+  const mins=o.t[state.area];
+  const transit=o.carOnly?"Car needed — limited transit":o.ltd?"Limited transit (~"+mins+" min from "+state.area+") — check TransLink":"Transit-accessible (~"+mins+" min from "+state.area+")";
+  const how=o.how?" · "+o.how:"";
   const wx=o.wx==="rain"?"Fine in the rain":o.wx==="dry"?"Best on a dry day":"Rain or shine";
-  const pets=o.dog?"Dog-friendly (leashed)":"No dogs allowed";
-  const hours=o.walk?"Streets always open; shops vary":"Public park \u2014 generally dawn to dusk";
+  const pets=o.dogNote||(o.dog?"Dog-friendly (leashed)":"No dogs allowed");
+  const hours=o.hours||(o.walk?"Streets always open; shops vary":"Public park — generally dawn to dusk");
   const A=' target="_blank" rel="noopener" style="color:var(--accent-deep)" href=';
   const dest=encodeURIComponent(o.name.split(" & ")[0]+", Vancouver BC");
-  const links=['<a'+A+'"https://www.google.com/maps/dir/?api=1&destination='+dest+'&travelmode=transit">Transit & schedule \u2197</a>'];
-  if(o.walk){
+  const links=['<a'+A+'"https://www.google.com/maps/dir/?api=1&destination='+dest+'&travelmode=transit">Transit & schedule ↗</a>'];
+  if(o.route){
+    const r=o.route;const wp=(r.via||[]).map(encodeURIComponent).join("%7C");
+    links.push('<a'+A+'"https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(r.origin)+'&destination='+encodeURIComponent(r.dest)+'&travelmode='+r.mode+(wp?'&waypoints='+wp:'')+'">Ride this route ↗</a>');
+  }else if(o.walk){
     const pts=o.walk.map(encodeURIComponent);const wp=pts.slice(1).join("%7C");
-    links.push('<a'+A+'"https://www.google.com/maps/dir/?api=1&origin='+pts[0]+'&destination='+pts[0]+'&travelmode=walking'+(wp?'&waypoints='+wp:'')+'">Walk this route \u2197</a>');
-  }else if(o.cat==="hike"||o.cat==="walk"){
-    links.push('<a'+A+'"https://www.alltrails.com/search?q='+encodeURIComponent(o.name.split(",")[0])+'">Trail map (AllTrails) \u2197</a>');
+    links.push('<a'+A+'"https://www.google.com/maps/dir/?api=1&origin='+pts[0]+'&destination='+pts[0]+'&travelmode=walking'+(wp?'&waypoints='+wp:'')+'">Walk this route ↗</a>');
+  }else if(o.cats.includes("hike")||o.cats.includes("nature")){
+    links.push('<a'+A+'"https://www.alltrails.com/search?q='+encodeURIComponent(o.name.split(",")[0])+'">Trail map (AllTrails) ↗</a>');
   }
-  return '<div class="detail" data-detail="'+o.name+'">'
+  return '<div class="detail" data-detail="'+esc(o.name)+'">'
     +'<div><span class="k">Parking</span><span>'+o.park+'</span></div>'
+    +'<div><span class="k">Parking cost</span><span>'+o.pk[1]+'</span></div>'
     +'<div><span class="k">Cost</span><span>'+o.cost+'</span></div>'
     +'<div><span class="k">Pets</span><span>'+pets+'</span></div>'
-    +'<div><span class="k">Getting there</span><span>'+transit+'</span></div>'
+    +'<div><span class="k">Getting there</span><span>'+transit+how+'</span></div>'
+    +(o.bike?'<div><span class="k">Bikes</span><span>'+o.bike+'</span></div>':'')
     +'<div><span class="k">Weather</span><span>'+wx+'</span></div>'
     +'<div><span class="k">Hours</span><span>'+hours+'</span></div>'
-    +'<div><span class="k">Guide</span><span>'+links.join(" \u00b7 ")+'</span></div></div>';
+    +'<div><span class="k">Guide</span><span>'+links.join(" · ")+'</span></div></div>';
 }
 function card(o){
-  const c=CATS[o.cat];const tint=isDark()?c.dt:c.t,glyph=isDark()?c.dink:c.ink;
+  const main=o.cats[0];const c=CATS[main];const tint=isDark()?c.dt:c.t,glyph=isDark()?c.dink:c.ink;
   const topoColor=isDark()?"rgba(255,255,255,.10)":"rgba(42,38,50,.09)";
   const isDone=done.has(o.name);const wet=isWet();
+  const pkCls=o.pk[0]==="free"||o.pk[0]==="none"?" pk-free":o.pk[0]==="check"||o.pk[0]==="limited"?" pk-check":"";
   return '<article class="card'+(o._top?' top':'')+(isDone?' is-done':'')+'">'
-    +'<div class="cap" style="background:'+tint+';color:'+glyph+'">'+topo(topoColor)
+    +'<div class="cap has-photo" style="background:'+tint+';color:'+glyph+'">'+topo(topoColor)
+      +'<span class="glyph">'+catGlyph(main)+'</span>'
+      +'<img class="photo" src="'+esc(o.img)+'.'+PHOTO_EXTS[0]+'" data-base="'+esc(o.img)+'" data-i="0" alt="'+esc(o.name)+'" loading="lazy">'
+      +(o.credit?'<span class="photocredit">'+esc(o.credit)+'</span>':'')
       +(o._top?'<span class="pill">'+icon("star")+' Top pick</span>':'')
       +(isDone?'<span class="donebadge">'+icon("check")+' Done</span>':'')
-      +'<span class="glyph">'+catGlyph(o.cat)+'</span></div>'
+    +'</div>'
     +'<div class="body">'
       +'<div class="title-row"><span class="name">'+o.name+'</span><span class="type">'+o.type+'</span></div>'
       +'<p class="why">'+o.why+'</p>'
@@ -366,12 +423,13 @@ function card(o){
         +'<span class="fact">'+icon("pin")+' ~'+o.t[state.area]+' min from '+state.area+'</span>'
         +'<span class="fact">'+icon("clock")+' '+o.durLabel+'</span>'
         +'<span class="fact">'+icon("bag")+' '+o.bring+'</span>'
+        +'<span class="fact'+pkCls+'">'+icon("car")+' '+o.pk[1]+'</span>'
       +'</div>'
       +(o.funFact?'<p class="funfact">'+icon("spark")+'<span>'+o.funFact+'</span></p>':'')
       +detailBlock(o)
       +'<div class="rowbtns">'
-        +'<button class="minibtn detailbtn" data-name="'+o.name+'">'+icon("info")+' Details</button>'
-        +'<button class="minibtn donebtn'+(isDone?' is-done':'')+'" data-name="'+o.name+'">'+icon(isDone?"check":"plus")+' '+(isDone?"Done":"Mark as done")+'</button>'
+        +'<button class="minibtn detailbtn" data-name="'+esc(o.name)+'">'+icon("info")+' Details</button>'
+        +'<button class="minibtn donebtn'+(isDone?' is-done':'')+'" data-name="'+esc(o.name)+'">'+icon(isDone?"check":"plus")+' '+(isDone?"Done":"Mark as done")+'</button>'
       +'</div>'
     +'</div></article>';
 }
@@ -379,13 +437,20 @@ function summaryText(){
   const t=TIME.find(x=>x.id===state.time).label.toLowerCase();
   const e=ENERGY.find(x=>x.id===state.energy).label.toLowerCase();
   const g=state.transport==="car"?"by car":"on transit";
-  return "from "+state.area+" \u00b7 "+g+" \u00b7 "+t+" \u00b7 "+e+(state.dog==="yes"?" \u00b7 with dog":"")+(isWet()?" \u00b7 wet day":"");
+  return "from "+state.area+" · "+g+" · "+t+" · "+e+(state.dog==="yes"?" · with dog":"")+(isWet()?" · wet day":"")+(state.dist!=="any"?" · within "+state.dist+" min":"");
+}
+function photoFail(im){
+  if(!im.parentNode)return;
+  const i=parseInt(im.getAttribute("data-i"),10)+1;
+  if(i<PHOTO_EXTS.length){im.setAttribute("data-i",i);im.src=im.getAttribute("data-base")+"."+PHOTO_EXTS[i];return;}
+  const cap=im.parentNode;cap.classList.remove("has-photo");const cr=cap.querySelector(".photocredit");if(cr)cr.remove();im.remove();
 }
 function render(){
   el("resSummary").textContent=summaryText();
   const all=matches();const grid=el("grid"),more=el("moreRow");
   if(all.length===0){
-    grid.innerHTML='<div class="empty">'+(state.types.size===0?"Pick at least one activity type above.":"Nothing matches all of that. Try a wider distance, a car, more time, or more energy"+(state.dog==="yes"?", or leaving the dog this time":"")+".")+'</div>';
+    const near=state.dist!=="any"&&DIST[state.dist]<=15;
+    grid.innerHTML='<div class="empty">'+(state.types.size===0?"Pick at least one activity type above.":"Nothing matches all of that"+(near?" within "+state.dist+" minutes of "+state.area+" — try a longer distance, or a different area":". Try a wider distance, a car, more time, or more energy")+(state.dog==="yes"?", or leaving the dog this time":"")+".")+'</div>';
     more.innerHTML="";el("resTitle").textContent="No spots yet";
   }else{
     const cnt=state.count==="999"?all.length:parseInt(state.count);
@@ -395,16 +460,18 @@ function render(){
     for(let i=0;i<shown;i++)picks.push(all[(start+i)%all.length]);
     picks.forEach((p,i)=>p._top=(rotate===0&&i===0&&!done.has(p.name)));
     grid.innerHTML=picks.map(card).join("");
+    grid.querySelectorAll(".cap img.photo").forEach(im=>im.addEventListener("error",()=>photoFail(im)));
     more.innerHTML=all.length>shown?'<button class="btn btn-ghost" id="moreBtn">'+icon("refresh")+' Show me others</button>':"";
     const mb=el("moreBtn");if(mb)mb.onclick=()=>{rotate++;render();};
     grid.querySelectorAll(".donebtn").forEach(b=>b.onclick=()=>{const nm=b.getAttribute("data-name");done.has(nm)?done.delete(nm):done.add(nm);saveDone();render();});
     grid.querySelectorAll(".detailbtn").forEach(b=>b.onclick=()=>{const cd=b.closest(".card");const d=cd&&cd.querySelector(".detail");if(d)d.classList.toggle("open");b.classList.toggle("on");});
   }
-  el("storeNote").textContent="Saved on this device only, no account \u00b7 you've marked "+done.size+" spot"+(done.size===1?"":"s")+" done.";
+  el("storeNote").textContent="Saved on this device only, no account · you've marked "+done.size+" spot"+(done.size===1?"":"s")+" done.";
 }
 function parseText(str){
   const s=" "+str.toLowerCase()+" ";
   AREAS.forEach(a=>{if(s.includes(a.toLowerCase()))state.area=a;});
+  if(/\bkits\b/.test(s))state.area="Kitsilano";
   if(s.includes("north van")||s.includes("north shore")||s.includes("seymour"))state.area="North Shore";
   if(/no car|without a car|transit|bus|skytrain|don'?t drive/.test(s))state.transport="transit";
   if(/\b(car|drive|driving|road trip)\b/.test(s))state.transport="car";
